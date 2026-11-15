@@ -1,0 +1,14 @@
+---
+import type { Category } from '../../data/site';
+import Breadcrumb from '../Shared/Breadcrumb.astro';
+
+interface Props {
+  category: Category;
+}
+
+const { category } = Astro.props;
+---
+
+<Breadcrumb class="mb-5" items={[{ label: 'Home', href: '/' }, { label: category.name }]} />
+<h1 class="m-0 mb-3 font-display text-[32px] leading-[1.15] font-normal md:text-[40px] lg:text-5xl">{category.name}</h1>
+<p class="m-0 mb-9 max-w-[620px] text-[17px] leading-[1.6] text-ink-600">{category.desc}</p>

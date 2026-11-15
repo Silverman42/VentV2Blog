@@ -1,0 +1,42 @@
+---
+import { absoluteUrl, type PostSummary } from '../../lib/posts';
+import BookmarkButton from '../Shared/BookmarkButton.astro';
+import Icon from '../Shared/Icon.astro';
+
+interface Props {
+  post: PostSummary;
+}
+
+const { post } = Astro.props;
+const url = absoluteUrl(post.url);
+const enc = encodeURIComponent;
+const shares = [
+  { label: 'Share on X', glyph: 'X', href: `https://x.com/intent/post?url=${enc(url)}&text=${enc(post.title)}` },
+  { label: 'Share on WhatsApp', glyph: 'WA', href: `https://wa.me/?text=${enc(post.title + ' ' + url)}` },
+  { label: 'Share on LinkedIn', glyph: 'in', href: `https://www.linkedin.com/sharing/share-offsite/?url=${enc(url)}` },
+  { label: 'Share on Facebook', glyph: 'f', href: `https://www.facebook.com/sharer/sharer.php?u=${enc(url)}` },
+];
+const circle =
+  'grid size-11 place-items-center rounded-full border border-line-200 bg-surface text-ink-900! no-underline transition-colors duration-150 hover:border-brand-700';
+---
+
+<div class="flex flex-wrap items-center gap-2">
+  <BookmarkButton post={post} variant="pill" />
+  <button type="button" data-copy-link={url} aria-label="Copy link" title="Copy link" class={circle}>
+    <Icon name="link" size={18} />
+  </button>
+  {
+    shares.map((s) => (
+      <a
+        href={s.href}
+        target="_blank"
+        rel="noopener"
+        aria-label={s.label}
+        title={s.label}
+        class:list={[circle, 'text-sm leading-none font-bold']}
+      >
+        {s.glyph}
+      </a>
+    ))
+  }
+</div>

@@ -1,0 +1,26 @@
+---
+import { PAGE_SIZE } from '../../data/site';
+import type { PostSummary } from '../../lib/posts';
+import LoadMore from '../Shared/LoadMore.astro';
+import PostGrid from '../Shared/PostGrid.astro';
+
+interface Props {
+  posts: PostSummary[];
+}
+
+const { posts } = Astro.props;
+---
+
+<div data-listing data-mode="category" data-page-size={PAGE_SIZE}>
+  <PostGrid posts={posts} isVisible={(_, i) => i < PAGE_SIZE} />
+  {
+    posts.length === 0 && (
+      <p class="m-0 py-12 text-center text-[17px] leading-[1.6] text-ink-600">No posts in this category yet.</p>
+    )
+  }
+  <LoadMore hidden={posts.length <= PAGE_SIZE} />
+</div>
+
+<script>
+  import '../../scripts/listing';
+</script>

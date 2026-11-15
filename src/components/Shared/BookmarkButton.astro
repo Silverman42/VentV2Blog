@@ -1,0 +1,50 @@
+---
+/**
+ * Bookmark toggle. State (aria-pressed, label, text) is applied on the client by scripts/ui.ts
+ * for every element carrying [data-bookmark].
+ */
+import type { PostSummary } from '../../lib/posts';
+import Icon from './Icon.astro';
+
+interface Props {
+  post: PostSummary;
+  variant?: 'card' | 'glass' | 'pill';
+  class?: string;
+}
+
+const { post, variant = 'card', class: className } = Astro.props;
+
+const payload = JSON.stringify({
+  id: post.id,
+  slug: post.slug,
+  title: post.title,
+  category: post.category,
+  coverImage: post.coverImage ?? `cover-${post.id}`,
+});
+
+const base = 'group/bm relative z-10 flex-none inline-flex items-center justify-center transition-colors duration-150';
+const variants = {
+  card: 'size-11 -my-2 -mr-2.5 rounded-full border-0 bg-transparent text-ink-900 hover:bg-brand-100',
+  glass:
+    'size-11 rounded-full border border-white/30 bg-white/14 text-white hover:bg-white/26',
+  pill:
+    'h-11 gap-2 rounded-full border border-line-200 bg-surface px-[18px] text-[15px] leading-none font-semibold text-ink-900 hover:border-brand-700 aria-pressed:border-brand-500 aria-pressed:bg-brand-100',
+};
+const savedStroke = variant === 'glass' ? 'text-brand-500' : 'text-brand-700';
+const size = variant === 'pill' ? 18 : 20;
+---
+
+<button
+  type="button"
+  data-bookmark={payload}
+  aria-pressed="false"
+  aria-label={variant === 'pill' ? undefined : 'Save post'}
+  title={variant === 'pill' ? undefined : 'Save post'}
+  class:list={[base, variants[variant], className]}
+>
+  <span class="group-aria-pressed/bm:hidden"><Icon name="bookmark" size={size} /></span>
+  <span class:list={['hidden group-aria-pressed/bm:inline', savedStroke]}>
+    <Icon name="bookmark" size={size} class="fill-brand-500" />
+  </span>
+  {variant === 'pill' && <span data-save-text>Save</span>}
+</button>

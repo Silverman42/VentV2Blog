@@ -1,0 +1,50 @@
+---
+/**
+ * Category pill row.
+ * - mode "filter": buttons that filter the grid in place (Home, like the prototype).
+ * - mode "nav": links to category pages (Category pages).
+ */
+import { CATEGORIES } from '../../data/site';
+
+interface Props {
+  mode: 'filter' | 'nav';
+  current?: string;
+}
+
+const { mode, current = 'all' } = Astro.props;
+const tabs = [{ slug: 'all', name: 'All' }, ...CATEGORIES];
+const pill =
+  'inline-flex h-10 flex-none items-center rounded-full border px-[18px] text-[15px] leading-none font-semibold whitespace-nowrap no-underline transition-colors duration-150 hover:border-brand-700';
+const on = 'border-brand-500 bg-brand-500 text-abyss!';
+const off = 'border-line-200 bg-surface text-ink-900!';
+---
+
+{
+  mode === 'filter' ? (
+    <div role="tablist" aria-label="Filter by category" data-tabs class="mb-8 flex gap-2 overflow-x-auto pb-1">
+      {tabs.map((t) => (
+        <button
+          type="button"
+          role="tab"
+          data-tab={t.slug}
+          aria-selected={t.slug === current ? 'true' : 'false'}
+          class:list={[pill, 'aria-selected:border-brand-500 aria-selected:bg-brand-500 aria-selected:text-abyss!', off]}
+        >
+          {t.name}
+        </button>
+      ))}
+    </div>
+  ) : (
+    <nav aria-label="Categories" class="mb-8 flex gap-2 overflow-x-auto pb-1">
+      {tabs.map((t) => (
+        <a
+          href={t.slug === 'all' ? '/' : `/category/${t.slug}`}
+          aria-current={t.slug === current ? 'page' : undefined}
+          class:list={[pill, t.slug === current ? on : off]}
+        >
+          {t.name}
+        </a>
+      ))}
+    </nav>
+  )
+}

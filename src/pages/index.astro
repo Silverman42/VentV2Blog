@@ -1,0 +1,17 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Hero from '../components/Home/Hero.astro';
+import Carousel from '../components/Home/Carousel.astro';
+import BrowseSection from '../components/Home/BrowseSection.astro';
+import { CAROUSEL_COUNT } from '../data/site';
+import { getAllPosts } from '../lib/posts';
+
+const posts = await getAllPosts();
+const latest = posts.slice(0, CAROUSEL_COUNT);
+---
+
+<BaseLayout currentCategory="all">
+  <Hero />
+  <Carousel posts={latest} />
+  <BrowseSection posts={posts} latestIds={latest.map((p) => p.id)} />
+</BaseLayout>

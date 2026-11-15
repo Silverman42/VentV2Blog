@@ -1,0 +1,16 @@
+---
+interface Props {
+  hidden?: boolean;
+}
+const { hidden = false } = Astro.props;
+---
+
+<div data-load-more-wrap class="flex justify-center pt-12" hidden={hidden}>
+  <button
+    type="button"
+    data-load-more
+    class="h-[52px] rounded-full border border-brand-700 bg-transparent px-7 text-base leading-none font-semibold text-brand-700 transition-colors duration-150 hover:bg-brand-100"
+  >
+    Load more
+  </button>
+</div>

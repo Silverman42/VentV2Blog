@@ -1,0 +1,200 @@
+@import "tailwindcss";
+
+@font-face {
+  font-family: "LoveClub";
+  src: url("/TheLoveClub.otf") format("opentype");
+  font-display: swap;
+}
+
+@theme {
+  /* Brand tokens (PRD §5.1) */
+  --color-brand-100: #e1f5ff;
+  --color-brand-500: #05aafe;
+  --color-brand-600: #0090d9;
+  --color-brand-700: #0077b6;
+  --color-ink-900: #0b1620;
+  --color-ink-600: #4a5a68;
+  --color-line-200: #e3e8ed;
+  --color-surface: #ffffff;
+  --color-surface-alt: #f5f8fa;
+  --color-night: #01111b;
+  --color-night-tile: #0e222f;
+  --color-night-muted: #9fb0bd;
+  --color-night-text: #c9d3db;
+  --color-card-hover: #fbfdff;
+  /* Fixed deep navy — the same in both themes (carousel backdrop, overlays, text on brand fills) */
+  --color-abyss: #0b1620;
+
+  --font-sans: "Figtree", system-ui, sans-serif;
+  --font-display: "LoveClub", "Figtree", system-ui, sans-serif;
+
+  --ease-out-expo: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Dark mode is class-based so the header switch can override the system preference. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Dark theme: re-point the semantic tokens; every utility using them follows automatically. */
+.dark {
+  color-scheme: dark;
+  --color-surface: #0a131b;
+  --color-surface-alt: #111d27;
+  --color-ink-900: #e8eef3;
+  --color-ink-600: #9fb0bd;
+  --color-line-200: #22313d;
+  --color-brand-100: #0c2c40;
+  --color-brand-700: #5cc8ff;
+  --color-card-hover: #0f1b25;
+}
+
+/* The footer keeps its own fixed dark look in both themes: restore the light token values inside it. */
+.theme-fixed {
+  color-scheme: light;
+  --color-surface: #ffffff;
+  --color-surface-alt: #f5f8fa;
+  --color-ink-900: #0b1620;
+  --color-ink-600: #4a5a68;
+  --color-line-200: #e3e8ed;
+  --color-brand-100: #e1f5ff;
+  --color-brand-700: #0077b6;
+  --color-card-hover: #fbfdff;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  html,
+  body {
+    @apply bg-surface text-ink-900 font-sans antialiased;
+  }
+  a {
+    color: var(--color-brand-700);
+  }
+  a:hover {
+    color: var(--color-brand-600);
+  }
+  *:focus-visible {
+    outline: 2px solid var(--color-brand-700);
+    outline-offset: 3px;
+  }
+  button {
+    font-family: inherit;
+    cursor: pointer;
+  }
+  [hidden] {
+    display: none !important;
+  }
+}
+
+/* Liquid glass (PRD §5.6) — depth via translucency and gradients, never shadows */
+@utility glass {
+  background-color: rgb(255 255 255 / 0.55);
+  background-image: linear-gradient(to bottom, rgb(255 255 255 / 0.35), rgb(255 255 255 / 0.05));
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+}
+
+@utility glass-strong {
+  background-color: rgb(255 255 255 / 0.84);
+  background-image: linear-gradient(to bottom, rgb(255 255 255 / 0.35), rgb(255 255 255 / 0.05));
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgb(255 255 255 / 0.6);
+}
+
+@utility glass-dark {
+  background-color: rgb(11 22 32 / 0.5);
+  background-image: linear-gradient(to bottom, rgb(255 255 255 / 0.12), rgb(255 255 255 / 0.02));
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgb(255 255 255 / 0.18);
+  color: #fff;
+}
+
+/* Glass in dark mode: smoked navy instead of frosted white */
+.dark .glass {
+  background-color: rgb(10 19 27 / 0.6);
+  background-image: linear-gradient(to bottom, rgb(255 255 255 / 0.06), rgb(255 255 255 / 0.01));
+}
+.dark .glass-strong {
+  background-color: rgb(17 29 39 / 0.88);
+  background-image: linear-gradient(to bottom, rgb(255 255 255 / 0.06), rgb(255 255 255 / 0.01));
+  border-color: rgb(255 255 255 / 0.1);
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .glass,
+  .glass-strong,
+  .dark .glass,
+  .dark .glass-strong {
+    background: var(--color-surface);
+  }
+  .glass-dark {
+    background: var(--color-abyss);
+  }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .glass,
+  .glass-strong,
+  .dark .glass,
+  .dark .glass-strong {
+    background: var(--color-surface);
+    backdrop-filter: none;
+  }
+  .glass-dark {
+    background: var(--color-abyss);
+    backdrop-filter: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0ms !important;
+    animation-duration: 0ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Article body typography (rendered markdown) */
+@layer components {
+  .prose-vent > * + * {
+    margin-top: 1.25rem;
+  }
+  .prose-vent h2 {
+    @apply font-display text-[26px] leading-[1.2] font-normal md:text-[30px] lg:text-[36px];
+    margin-top: 3rem;
+    margin-bottom: 1rem;
+    scroll-margin-top: 96px;
+  }
+  .prose-vent h2 + * {
+    margin-top: 0;
+  }
+  .prose-vent ul {
+    @apply flex list-disc flex-col gap-2.5 pl-[22px];
+  }
+  .prose-vent ol {
+    @apply flex list-decimal flex-col gap-2.5 pl-[22px];
+  }
+  .prose-vent blockquote {
+    @apply my-8 border-l-2 border-brand-500 py-1 pl-6;
+  }
+  .prose-vent blockquote p {
+    @apply font-display text-[22px] leading-[1.45];
+  }
+  .prose-vent blockquote p + p {
+    @apply mt-3 font-sans text-sm leading-[1.4] font-medium text-ink-600;
+  }
+  .prose-vent figure {
+    @apply my-8;
+  }
+  .prose-vent figcaption {
+    @apply mt-2.5 text-sm leading-[1.4] font-medium text-ink-600;
+  }
+  .prose-vent a {
+    @apply underline underline-offset-2;
+  }
+}

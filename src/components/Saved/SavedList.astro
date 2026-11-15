@@ -1,0 +1,23 @@
+---
+/**
+ * All posts are rendered hidden; scripts/saved.ts reveals the bookmarked ones, most recently saved first.
+ */
+import type { PostSummary } from '../../lib/posts';
+import PostGrid from '../Shared/PostGrid.astro';
+import SavedEmpty from './SavedEmpty.astro';
+
+interface Props {
+  posts: PostSummary[];
+}
+
+const { posts } = Astro.props;
+---
+
+<div data-saved-list>
+  <PostGrid posts={posts} isVisible={() => false} data-saved-grid="" />
+  <SavedEmpty />
+</div>
+
+<script>
+  import '../../scripts/saved';
+</script>

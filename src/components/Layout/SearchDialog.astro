@@ -1,0 +1,83 @@
+---
+import { CATEGORIES } from '../../data/site';
+import { getAllPosts } from '../../lib/posts';
+import Icon from '../Shared/Icon.astro';
+
+const posts = await getAllPosts();
+const index = posts.map(({ id, url, title, excerpt, author, cat, category, date }) => ({
+  id,
+  url,
+  title,
+  excerpt,
+  author,
+  cat,
+  category,
+  date,
+}));
+const cats = [{ slug: 'all', name: 'All' }, ...CATEGORIES];
+---
+
+<div
+  data-search
+  data-open="false"
+  class="group/search pointer-events-none invisible fixed inset-0 z-80 flex items-start justify-center bg-abyss/40 px-3 pt-4 pb-3 opacity-0 transition-[opacity,visibility] duration-300 ease-out data-[open=true]:pointer-events-auto data-[open=true]:visible data-[open=true]:opacity-100 md:pt-24"
+>
+  <div
+    data-search-panel
+    role="dialog"
+    aria-modal="true"
+    aria-label="Search posts"
+    class="glass-strong flex max-h-full w-[min(640px,100%)] -translate-y-4 scale-[0.97] flex-col overflow-hidden rounded-3xl transition-transform duration-300 ease-out-expo group-data-[open=true]/search:translate-y-0 group-data-[open=true]/search:scale-100"
+  >
+    <div class="flex flex-col gap-4 border-b border-line-200 px-5 pt-5 pb-4">
+      <div class="flex items-center gap-2.5">
+        <label class="flex h-[52px] flex-1 items-center gap-2.5 rounded-full border border-line-200 bg-surface px-[18px] text-ink-600">
+          <Icon name="search" size={20} />
+          <input
+            data-search-input
+            type="search"
+            placeholder="Search stories, guides and news"
+            aria-label="Search"
+            autocomplete="off"
+            class="min-w-0 flex-1 border-0 bg-transparent text-[17px] leading-none font-medium text-ink-900 outline-none focus-visible:outline-none"
+          />
+        </label>
+        <button
+          type="button"
+          data-search-close
+          aria-label="Close search"
+          class="grid size-11 flex-none place-items-center rounded-full border border-line-200 bg-surface text-ink-900 hover:border-brand-700"
+        >
+          <Icon name="close" size={18} />
+        </button>
+      </div>
+      <div role="radiogroup" aria-label="Filter by category" class="flex gap-2 overflow-x-auto">
+        {
+          cats.map((c) => (
+            <button
+              type="button"
+              role="radio"
+              data-scat={c.slug}
+              aria-checked={c.slug === 'all' ? 'true' : 'false'}
+              class="h-9 flex-none rounded-full border border-line-200 bg-surface px-4 text-sm leading-none font-semibold whitespace-nowrap text-ink-900 hover:border-brand-700 aria-checked:border-brand-500 aria-checked:bg-brand-500 aria-checked:text-abyss"
+            >
+              {c.name}
+            </button>
+          ))
+        }
+      </div>
+    </div>
+    <div class="overflow-y-auto p-2">
+      <span data-search-label class="block px-3 pt-2.5 pb-1.5 text-xs leading-none font-bold tracking-[0.08em] text-ink-600"
+        >LATEST STORIES</span
+      >
+      <ul data-search-results class="m-0 list-none p-0"></ul>
+      <p data-search-empty hidden class="m-0 px-3 py-8 text-center text-base leading-[1.6] text-ink-600"></p>
+    </div>
+  </div>
+  <script type="application/json" data-search-index set:html={JSON.stringify(index)} />
+</div>
+
+<script>
+  import '../../scripts/search';
+</script>

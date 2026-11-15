@@ -1,0 +1,83 @@
+---
+import { SITE } from '../../data/site';
+import Icon from '../Shared/Icon.astro';
+
+interface Props {
+  /** Highlights the Saved button when on /saved. */
+  savedActive?: boolean;
+}
+
+const { savedActive = false } = Astro.props;
+const iconBtn =
+  'grid size-10 flex-none place-items-center rounded-full border border-line-200 bg-surface text-ink-900 transition-colors duration-150 hover:border-brand-700 sm:size-11';
+---
+
+<header class="glass sticky top-0 z-40 border-b border-line-200">
+  <div class="mx-auto flex h-[72px] max-w-[1200px] items-center gap-2 px-4 sm:gap-3 md:gap-8 md:px-8 lg:px-12">
+    <a href="/" aria-label="Vent blog home" class="flex flex-none items-center gap-2.5 no-underline">
+      <img src="/vent-logo.svg" alt="Vent" width="94" height="22" class="block h-[18px] w-auto min-[360px]:h-[22px]" />
+      <span class="border-l border-line-200 pl-2.5 text-[13px] leading-none font-semibold text-ink-600 max-sm:hidden">Blog</span>
+    </a>
+
+    <div class="ml-auto flex items-center gap-1.5 sm:gap-2">
+      <button type="button" data-search-open aria-label="Search posts" aria-haspopup="dialog" title="Search" class={iconBtn}>
+        <Icon name="search" size={19} />
+      </button>
+
+      <button
+        type="button"
+        data-theme-toggle
+        aria-label="Switch to dark mode"
+        title="Switch to dark mode"
+        class={iconBtn}
+      >
+        <span class="dark:hidden"><Icon name="moon" size={19} /></span>
+        <span class="hidden dark:inline"><Icon name="sun" size={20} /></span>
+      </button>
+
+      <a
+        href="/saved"
+        aria-current={savedActive ? 'page' : undefined}
+        class:list={[
+          'flex h-10 items-center gap-2 rounded-full border pr-1.5 pl-2.5 text-[15px] leading-none font-semibold text-ink-900! no-underline transition-colors duration-150 hover:border-brand-700 sm:h-11 sm:pr-2 sm:pl-4',
+          savedActive ? 'border-brand-500 bg-brand-100' : 'border-line-200 bg-surface',
+        ]}
+      >
+        <span class="max-[359px]:hidden"><Icon name="bookmark" size={18} /></span>
+        <span class="sr-only sm:not-sr-only">Saved</span>
+        <span
+          data-saved-count
+          aria-label="0 saved posts"
+          class="grid h-7 min-w-7 place-items-center rounded-full bg-brand-500 px-2 text-[13px] leading-none font-bold text-white"
+          >0</span
+        >
+      </a>
+
+      <a
+        href={SITE.downloadUrl}
+        target="_blank"
+        rel="noopener"
+        aria-label="Download the Vent app"
+        class="hidden h-11 items-center gap-2 rounded-full bg-brand-500 px-5 text-[15px] leading-none font-semibold whitespace-nowrap text-white! no-underline transition-colors duration-150 hover:bg-brand-600 sm:flex"
+      >
+        <Icon name="download" size={18} />
+        <span>Download now</span>
+      </a>
+
+      <button
+        type="button"
+        data-drawer-open
+        aria-expanded="false"
+        aria-controls="category-drawer"
+        aria-label="Open categories menu"
+        class={iconBtn}
+      >
+        <Icon name="menu" size={20} />
+      </button>
+    </div>
+  </div>
+</header>
+
+<script>
+  import '../../scripts/theme';
+</script>

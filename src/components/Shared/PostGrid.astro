@@ -1,0 +1,35 @@
+---
+/**
+ * Responsive post grid (PRD FR-3): 1 column < 768px, 2 columns from 768px.
+ * Items expose data attributes so listing/saved scripts can filter, paginate and reorder them.
+ */
+import type { PostSummary } from '../../lib/posts';
+import PostCard from './PostCard.astro';
+
+interface Props {
+  posts: PostSummary[];
+  /** Server-side visibility: return false to render an item hidden (JS may reveal it). */
+  isVisible?: (post: PostSummary, index: number) => boolean;
+  latestIds?: string[];
+  class?: string;
+  [key: `data-${string}`]: string | undefined;
+}
+
+const { posts, isVisible = () => true, latestIds = [], class: className, ...rest } = Astro.props;
+---
+
+<ul class:list={['m-0 grid list-none grid-cols-1 gap-4 p-0 md:grid-cols-2 md:gap-6 lg:gap-8', className]} {...rest}>
+  {
+    posts.map((post, i) => (
+      <li
+        data-item
+        data-id={post.id}
+        data-cat={post.cat}
+        data-latest={latestIds.includes(post.id) ? 'true' : undefined}
+        hidden={!isVisible(post, i)}
+      >
+        <PostCard post={post} />
+      </li>
+    ))
+  }
+</ul>

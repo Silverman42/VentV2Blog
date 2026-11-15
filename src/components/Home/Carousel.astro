@@ -1,0 +1,127 @@
+---
+/** Hero carousel of the latest posts (PRD FR-1). Behaviour lives in scripts/carousel.ts. */
+import type { PostSummary } from '../../lib/posts';
+import BookmarkButton from '../Shared/BookmarkButton.astro';
+import CoverImage from '../Shared/CoverImage.astro';
+import Icon from '../Shared/Icon.astro';
+
+interface Props {
+  posts: PostSummary[];
+}
+
+const { posts } = Astro.props;
+const total = posts.length;
+const pad = (n: number) => String(n).padStart(2, '0');
+const ctrl =
+  'grid h-11 place-items-center rounded-full border border-line-200 bg-surface text-ink-900 transition-colors duration-150 hover:border-brand-700';
+---
+
+<section
+  data-carousel
+  aria-roledescription="carousel"
+  aria-label="Latest posts"
+  tabindex="0"
+  class="mx-auto max-w-[1200px] px-4 outline-none md:px-8 lg:px-12"
+>
+  <div class="relative aspect-[4/5] overflow-hidden rounded-3xl bg-abyss md:aspect-[16/10] lg:aspect-[21/9]">
+    {
+      posts.map((post, i) => (
+        <div
+          data-slide
+          role="group"
+          aria-roledescription="slide"
+          aria-label={`${i + 1} of ${total}`}
+          aria-hidden={i === 0 ? 'false' : 'true'}
+          inert={i !== 0}
+          class:list={[
+            'absolute inset-0 transition-opacity duration-[400ms] ease-out',
+            i === 0 ? 'opacity-100' : 'pointer-events-none opacity-0',
+          ]}
+        >
+          <CoverImage src={post.coverImage} alt={post.coverAlt} cat={post.cat} tone="dark" eager={i === 0} />
+          <a href={post.url} tabindex="-1" aria-hidden="true" class="absolute inset-0" />
+          <div class="pointer-events-none absolute inset-x-0 bottom-0 h-[65%] bg-linear-to-t from-abyss/60 to-abyss/0" />
+          <div class="glass-dark absolute bottom-3 left-3 flex w-[calc(100%-24px)] flex-col gap-3.5 rounded-3xl p-5 md:bottom-6 md:left-6 md:w-[calc(100%-48px)] md:p-7 lg:w-[60%]">
+            <div class="flex items-center gap-3">
+              <a
+                href={`/category/${post.cat}`}
+                class="inline-flex h-[30px] flex-none items-center rounded-full border border-white/30 bg-white/14 px-3.5 text-[13px] leading-none font-semibold text-white! no-underline hover:bg-white/26"
+              >
+                {post.category}
+              </a>
+              <div class="flex min-w-0 flex-1 gap-2 overflow-hidden text-sm leading-[1.4] font-medium text-ellipsis whitespace-nowrap text-white">
+                <time datetime={post.iso}>{post.date}</time>
+                <span aria-hidden="true">·</span>
+                <span>{post.author}</span>
+              </div>
+              <BookmarkButton post={post} variant="glass" />
+            </div>
+            <h2 class="m-0 font-display text-[26px] leading-[1.1] font-normal text-pretty md:text-[32px] lg:text-[40px]">
+              <a href={post.url} class="text-white! no-underline hover:underline">
+                {post.title}
+              </a>
+            </h2>
+            <div class="flex items-center gap-6">
+              <div class="min-w-0 flex-1">
+                <p
+                  title={post.excerpt}
+                  class="m-0 hidden w-4/5 overflow-hidden text-base leading-[1.55] text-ellipsis whitespace-nowrap text-white lg:block"
+                >
+                  {post.excerpt}
+                </p>
+              </div>
+              <a
+                href={post.url}
+                aria-label={`Read story: ${post.title}`}
+                title="Read story"
+                class="grid size-[52px] flex-none place-items-center rounded-full bg-brand-500 text-abyss! transition-colors duration-150 hover:bg-brand-600"
+              >
+                <Icon name="arrow-right" size={18} />
+              </a>
+            </div>
+          </div>
+        </div>
+      ))
+    }
+  </div>
+
+  <div class="flex items-center gap-3 pt-4 sm:gap-4">
+    <div class="flex flex-1 items-center gap-1.5">
+      {
+        posts.map((_, i) => (
+          <button
+            type="button"
+            data-dot={i}
+            data-active={i === 0 ? 'true' : 'false'}
+            aria-label={`Go to slide ${i + 1}`}
+            aria-current={i === 0 ? 'true' : undefined}
+            class="group/dot flex h-11 w-3.5 items-center p-0 transition-[width] duration-200 data-[active=true]:w-7 sm:w-5 sm:data-[active=true]:w-10"
+          >
+            <span class="block h-1.5 w-full rounded-full bg-line-200 transition-colors duration-200 group-data-[active=true]/dot:bg-brand-500" />
+          </button>
+        ))
+      }
+      <span data-counter class="ml-2.5 text-sm max-[399px]:hidden leading-none font-semibold text-ink-600 tabular-nums">
+        {pad(1)} / {pad(total)}
+      </span>
+    </div>
+    <button type="button" data-play data-playing="true" aria-label="Pause autoplay" title="Pause autoplay" class:list={[ctrl, 'group/play w-11']}>
+      <span class="group-data-[playing=false]/play:hidden"><Icon name="pause" size={16} /></span>
+      <span class="hidden group-data-[playing=false]/play:inline"><Icon name="play" size={16} /></span>
+    </button>
+    <div class="flex gap-2">
+      <button type="button" data-prev aria-label="Previous slide" class:list={[ctrl, 'w-11 sm:w-auto sm:px-[18px]']}>
+        <Icon name="chevron-left" size={18} />
+      </button>
+      <button type="button" data-next aria-label="Next slide" class:list={[ctrl, 'w-11 sm:w-auto sm:px-[18px]']}>
+        <Icon name="chevron-right" size={18} />
+      </button>
+    </div>
+  </div>
+  <div data-live aria-live="off" class="sr-only"></div>
+  <script type="application/json" data-titles set:html={JSON.stringify(posts.map((p) => p.title))} />
+</section>
+
+<script>
+  import '../../scripts/carousel';
+</script>

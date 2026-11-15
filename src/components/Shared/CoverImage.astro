@@ -1,0 +1,78 @@
+---
+/**
+ * Cover image. Renders the post's image when one is set in the CMS/frontmatter;
+ * otherwise a flat, category-tinted placeholder (the prototype ships no imagery).
+ */
+interface Props {
+  src?: string;
+  alt?: string;
+  cat?: string;
+  tone?: 'light' | 'dark';
+  eager?: boolean;
+  class?: string;
+}
+
+const { src, alt = '', cat = 'guides', tone = 'light', eager = false, class: className } = Astro.props;
+
+const LIGHT: Record<string, string> = {
+  guides: 'from-[#E1F5FF] via-[#C9ECFF] to-[#9FDBFF]',
+  markets: 'from-[#E9F7EF] via-[#CDEFDB] to-[#A4E0BE]',
+  product: 'from-[#EEF0FF] via-[#D9DDFF] to-[#B8C0FF]',
+  security: 'from-[#FFF3E6] via-[#FFE2C2] to-[#FFCB91]',
+  lifestyle: 'from-[#FFEEF3] via-[#FFD6E3] to-[#FFB3CB]',
+};
+const DARK: Record<string, string> = {
+  guides: 'from-[#0B1620] via-[#07425F] to-[#0590D6]',
+  markets: 'from-[#0B1620] via-[#0F4A3A] to-[#1E9C6E]',
+  product: 'from-[#0B1620] via-[#262B6B] to-[#4C59D9]',
+  security: 'from-[#0B1620] via-[#5C3311] to-[#D9822B]',
+  lifestyle: 'from-[#0B1620] via-[#5E1E3A] to-[#D9487A]',
+};
+/* Light-tone placeholders switch to deep, muted versions in dark mode (literal classes so Tailwind sees them). */
+const LIGHT_IN_DARK: Record<string, string> = {
+  guides: 'dark:from-[#0A1C29] dark:via-[#0B3048] dark:to-[#0D4A6B]',
+  markets: 'dark:from-[#0A1C1A] dark:via-[#0E3328] dark:to-[#14523C]',
+  product: 'dark:from-[#0E1226] dark:via-[#1A1F45] dark:to-[#2A3270]',
+  security: 'dark:from-[#1C140C] dark:via-[#3A2410] dark:to-[#5E3A15]',
+  lifestyle: 'dark:from-[#1C0E15] dark:via-[#3A1626] dark:to-[#5E1F3A]',
+};
+const gradient =
+  tone === 'dark'
+    ? (DARK[cat] ?? DARK.guides)
+    : `${LIGHT[cat] ?? LIGHT.guides} ${LIGHT_IN_DARK[cat] ?? LIGHT_IN_DARK.guides}`;
+---
+
+{
+  src ? (
+    <img
+      src={src}
+      alt={alt}
+      loading={eager ? 'eager' : 'lazy'}
+      fetchpriority={eager ? 'high' : undefined}
+      decoding="async"
+      class:list={['absolute inset-0 size-full object-cover', className]}
+    />
+  ) : (
+    <div
+      role="img"
+      aria-label={alt}
+      class:list={['absolute inset-0 overflow-hidden bg-linear-to-br', gradient, className]}
+    >
+      <svg
+        class:list={[
+          'absolute -right-[8%] -bottom-[18%] h-[90%] w-auto',
+          tone === 'dark' ? 'text-white/10' : 'text-white/55 dark:text-white/10',
+        ]}
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="0.6"
+        aria-hidden="true"
+      >
+        <circle cx="12" cy="12" r="10" />
+        <circle cx="12" cy="12" r="6.5" />
+        <circle cx="12" cy="12" r="3" />
+      </svg>
+    </div>
+  )
+}

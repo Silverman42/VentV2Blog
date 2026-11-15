@@ -1,0 +1,24 @@
+---
+import type { PostSummary } from '../../lib/posts';
+import PostGrid from '../Shared/PostGrid.astro';
+
+interface Props {
+  posts: PostSummary[];
+  category: string;
+}
+
+const { posts, category } = Astro.props;
+---
+
+{
+  posts.length > 0 && (
+    <section aria-labelledby="related-heading" class="border-t border-line-200 bg-surface-alt">
+      <div class="mx-auto max-w-[1200px] px-4 pt-16 pb-20 md:px-8 lg:px-12">
+        <h2 id="related-heading" class="m-0 mb-7 font-display text-[26px] leading-[1.2] font-normal md:text-[30px] lg:text-4xl">
+          More in {category}
+        </h2>
+        <PostGrid posts={posts} />
+      </div>
+    </section>
+  )
+}

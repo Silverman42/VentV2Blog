@@ -1,0 +1,42 @@
+---
+/**
+ * "Browse by category" — every post rendered once; tabs filter in place and "Load more" reveals
+ * PAGE_SIZE more (scripts/listing.ts). With "All" selected, carousel posts are excluded (PRD FR-3.4).
+ */
+import { PAGE_SIZE } from '../../data/site';
+import type { PostSummary } from '../../lib/posts';
+import CategoryTabs from '../Shared/CategoryTabs.astro';
+import LoadMore from '../Shared/LoadMore.astro';
+import PostGrid from '../Shared/PostGrid.astro';
+
+interface Props {
+  posts: PostSummary[];
+  latestIds: string[];
+}
+
+const { posts, latestIds } = Astro.props;
+const pool = posts.filter((p) => !latestIds.includes(p.id));
+const visibleIds = new Set(pool.slice(0, PAGE_SIZE).map((p) => p.id));
+---
+
+<section
+  data-listing
+  data-mode="home"
+  data-page-size={PAGE_SIZE}
+  aria-labelledby="browse-heading"
+  class="mx-auto max-w-[1200px] px-4 pt-[88px] pb-24 md:px-8 lg:px-12"
+>
+  <h2 id="browse-heading" class="m-0 mb-6 font-display text-[26px] leading-[1.2] font-normal md:text-[30px] lg:text-4xl">
+    Browse by category
+  </h2>
+  <CategoryTabs mode="filter" current="all" />
+  <PostGrid posts={posts} latestIds={latestIds} isVisible={(p) => visibleIds.has(p.id)} />
+  <p data-list-empty hidden class="m-0 py-12 text-center text-[17px] leading-[1.6] text-ink-600">
+    No posts in this category yet.
+  </p>
+  <LoadMore hidden={pool.length <= PAGE_SIZE} />
+</section>
+
+<script>
+  import '../../scripts/listing';
+</script>
