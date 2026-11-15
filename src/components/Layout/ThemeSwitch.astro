@@ -1,0 +1,59 @@
+---
+/**
+ * Theme switch: Light / Dark / System.
+ * - sm and up: segmented pill (radiogroup), selected option shown as a filled circle.
+ * - below sm: one round button that cycles Light → Dark → System and shows the current mode's icon.
+ * State is applied by scripts/theme.ts.
+ */
+import Icon from '../Shared/Icon.astro';
+
+interface Props {
+  /** Classes for the phone-size round button, so it matches the other header controls. */
+  buttonClass?: string;
+}
+
+const { buttonClass } = Astro.props;
+
+const options = [
+  { mode: 'light', label: 'Light', icon: 'sun' },
+  { mode: 'dark', label: 'Dark', icon: 'moon' },
+  { mode: 'system', label: 'Match system', icon: 'monitor' },
+] as const;
+---
+
+<div
+  role="radiogroup"
+  aria-label="Colour theme"
+  data-theme-group
+  class="hidden h-11 flex-none items-center gap-0.5 rounded-full bg-surface-alt p-1 sm:flex dark:bg-white/8"
+>
+  {
+    options.map((o) => (
+      <button
+        type="button"
+        role="radio"
+        data-theme-option={o.mode}
+        aria-checked={o.mode === 'system' ? 'true' : 'false'}
+        tabindex={o.mode === 'system' ? 0 : -1}
+        aria-label={o.label}
+        title={o.label}
+        class="grid size-9 place-items-center rounded-full text-ink-600 transition-colors duration-150 hover:text-ink-900 aria-checked:bg-surface aria-checked:text-ink-900 dark:aria-checked:bg-white/15 dark:aria-checked:text-white"
+      >
+        <Icon name={o.icon} size={19} />
+      </button>
+    ))
+  }
+</div>
+
+<button
+  type="button"
+  data-theme-cycle
+  data-mode="system"
+  aria-label="Theme: Match system. Switch to Light"
+  title="Theme: Match system"
+  class:list={['group/cycle sm:hidden', buttonClass]}
+>
+  <span class="hidden group-data-[mode=light]/cycle:inline"><Icon name="sun" size={19} /></span>
+  <span class="hidden group-data-[mode=dark]/cycle:inline"><Icon name="moon" size={19} /></span>
+  <span class="hidden group-data-[mode=system]/cycle:inline"><Icon name="monitor" size={19} /></span>
+</button>

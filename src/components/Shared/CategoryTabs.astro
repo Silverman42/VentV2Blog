@@ -15,7 +15,7 @@ const { mode, current = 'all' } = Astro.props;
 const tabs = [{ slug: 'all', name: 'All' }, ...CATEGORIES];
 const pill =
   'inline-flex h-10 flex-none items-center rounded-full border px-[18px] text-[15px] leading-none font-semibold whitespace-nowrap no-underline transition-colors duration-150 hover:border-brand-700';
-const on = 'border-brand-500 bg-brand-500 text-abyss!';
+const on = 'border-brand-500 bg-brand-500 text-white!';
 const off = 'border-line-200 bg-surface text-ink-900!';
 ---
 
@@ -28,7 +28,7 @@ const off = 'border-line-200 bg-surface text-ink-900!';
           role="tab"
           data-tab={t.slug}
           aria-selected={t.slug === current ? 'true' : 'false'}
-          class:list={[pill, 'aria-selected:border-brand-500 aria-selected:bg-brand-500 aria-selected:text-abyss!', off]}
+          class:list={[pill, 'aria-selected:border-brand-500 aria-selected:bg-brand-500 aria-selected:text-white!', off]}
         >
           {t.name}
         </button>
