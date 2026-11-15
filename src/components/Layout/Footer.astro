@@ -1,84 +1,130 @@
 ---
+// Adapted from VentV2Landing/src/components/Layout/Footer.astro (minus the landing CTA).
 import { FOOTER_LINKS, LEGAL_LINKS, SOCIALS } from '../../data/site';
+import SocialIcon from './SocialIcon.astro';
 
 const year = new Date().getFullYear();
 ---
 
-<footer class="theme-fixed bg-night text-white">
-  <div class="mx-auto max-w-[1500px] px-4 pt-[72px] pb-10 md:px-8 lg:px-12">
-    <div class="grid grid-cols-2 gap-x-8 gap-y-10 md:grid-cols-4 lg:grid-cols-[1.6fr_repeat(4,minmax(0,1fr))]">
-      <div class="col-span-full flex flex-col gap-5 lg:col-span-1">
-        <img
-          src="/vent-logo.svg"
-          alt="Vent"
-          width="128"
-          height="30"
-          class="h-[30px] w-auto self-start brightness-0 invert"
-        />
-        <p class="m-0 max-w-[380px] text-[15px] leading-[1.55] text-white">
-          Vent is the smartest way to use crypto in Nigeria and Ghana! Sell, store or spend crypto with Africa's most
+<footer class="theme-fixed relative z-3 w-full overflow-hidden bg-[#001119] font-normal text-white">
+  <div class="relative z-5 mx-auto my-10 max-w-[1500px] px-4 text-xs text-white md:px-8 md:text-sm lg:px-12">
+    <div class="flex w-full flex-col-reverse gap-10 md:flex-row lg:gap-24">
+      <div class="flex w-full max-w-[311px] shrink-0 flex-col items-start gap-3 py-14">
+        <img src="/img/logo_white.webp" alt="Vent" class="h-8 w-auto" />
+        <p class="m-0 text-xs text-white">
+          Vent is the smartest way to use crypto in Nigeria and Ghana! Sell, store or spend crypto with Africa’s most
           trusted crypto platform.
         </p>
-        <span class="mt-2 text-[13px] leading-none font-bold tracking-[0.06em] text-white">CONNECT WITH US</span>
-        <ul class="m-0 flex list-none flex-wrap gap-2.5 p-0">
-          {
-            SOCIALS.map((s) => (
-              <li>
-                <a
-                  href={s.href}
-                  aria-label={s.label}
-                  title={s.label}
-                  class="grid size-11 place-items-center rounded-full border border-white/12 bg-night-tile text-[13px] leading-none font-bold text-white! no-underline transition-colors duration-150 hover:bg-brand-500 hover:text-white!"
-                >
-                  {s.glyph}
-                </a>
-              </li>
-            ))
-          }
-        </ul>
+
+        <div class="mt-5">
+          <h6 class="m-0 mb-2 text-[11px] font-bold tracking-wide text-[#C9CBCF] uppercase">Connect with us</h6>
+          <ul class="m-0 flex list-none flex-wrap items-center gap-3 p-0">
+            {
+              SOCIALS.map((s) => (
+                <li>
+                  <a
+                    href={s.href}
+                    target="_blank"
+                    rel="noopener"
+                    aria-label={s.label}
+                    title={s.label}
+                    class="group inline-block aspect-square rounded-full bg-linear-to-b from-[#272734] to-[#111118] p-[2px] shadow-2xl shadow-transparent hover:shadow-[#8fd3f5]"
+                  >
+                    <span class="flex size-[2.3rem] items-center justify-center rounded-full bg-[#15151E]">
+                      <span class="flex size-[1.9rem] items-center justify-center rounded-full bg-[#050506] text-white group-hover:text-[#9fdfff]">
+                        <SocialIcon name={s.icon} class="size-5" />
+                      </span>
+                    </span>
+                  </a>
+                </li>
+              ))
+            }
+          </ul>
+        </div>
+
+        <div class="mt-5">
+          <h6 class="m-0 mb-2 text-[11px] font-bold tracking-wide text-[#C9CBCF] uppercase">Regulated &amp; Compliant</h6>
+          <div class="flex items-center gap-x-3">
+            <img src="/img/Fintrac.png" alt="FINTRAC" class="h-8 w-auto" />
+            <img src="/img/NDPC.png" alt="NDPC" class="h-8 w-auto" />
+          </div>
+        </div>
       </div>
-      {
-        FOOTER_LINKS.map((col) => (
-          <nav aria-label={col.title.toLowerCase()} class="flex flex-col gap-[18px]">
-            <span class="text-sm leading-none font-medium tracking-[0.04em] text-night-muted">{col.title}</span>
-            {col.links.map((l) => (
-              <a
-                href={l === 'Blog' ? '/' : '#'}
-                class="text-base leading-[1.3] text-white! no-underline transition-colors duration-150 hover:text-brand-500!"
-              >
-                {l}
-              </a>
-            ))}
-          </nav>
-        ))
-      }
+
+      <div class="grid w-full grid-cols-2 gap-x-4 gap-y-8 py-14 lg:gap-x-12 xl:grid-cols-4 xl:gap-x-20">
+        {
+          FOOTER_LINKS.map((col) => (
+            <nav aria-label={col.title.toLowerCase()} class="flex flex-col gap-4">
+              <h6 class="m-0 mb-2 text-[10px] font-medium tracking-tight text-[#C9CBCF] uppercase md:text-[13px]">
+                {col.title}
+              </h6>
+              {col.links.map((l) => (
+                <a
+                  href={l.href}
+                  target={col.newTab ? '_blank' : undefined}
+                  rel={col.newTab ? 'noopener' : undefined}
+                  class:list={[
+                    'text-sm tracking-tight text-white! no-underline hover:text-[#9fdfff]! md:text-base',
+                    col.nowrap && 'md:whitespace-nowrap',
+                  ]}
+                >
+                  {l.title}
+                </a>
+              ))}
+            </nav>
+          ))
+        }
+      </div>
     </div>
 
-    <div class="mt-14 flex max-w-[1000px] flex-col gap-4 text-sm leading-[1.6] text-night-text">
+    <div class="flex w-full max-w-[1192px] flex-col gap-5 text-xs text-white md:text-sm">
       <p class="m-0">
         Vent Finance Limited is incorporated in Canada with Business Number 725683239 and is registered with the
         Financial Transactions and Reports Analysis Centre of Canada (FINTRAC) as a Money Services Business (MSB). In
         Nigeria, Vent operates through Vent Africa Limited, incorporated under the laws of the Federal Republic of
-        Nigeria with RC Number 9081680, and is registered with the Nigerian Financial Intelligence Unit (NFIU).
+        Nigeria with RC Number 9081680. Vent Africa Limited is registered with the Nigerian Financial Intelligence Unit
+        (NFIU) and operates in accordance with applicable Nigerian laws and regulatory requirements.
+      </p>
+      <p class="m-0">
+        Vent is committed to protecting your privacy and personal information and processes data in accordance with the
+        Nigeria Data Protection Act 2023 (NDPA) and applicable data protection requirements.
       </p>
       <p class="m-0">
         Vent is a technology and financial services platform, not a bank, broker or investment adviser. Nothing on the
-        platform constitutes investment or financial advice. Cryptocurrency assets are volatile and may increase or
-        decrease significantly in value.
+        platform constitutes investment or financial advice. Product availability and services may vary by market,
+        applicable regulations and user eligibility. Cryptocurrency assets are volatile and may increase or decrease
+        significantly in value. Users should consider the risks involved and their individual circumstances before
+        transacting with cryptocurrency.
+      </p>
+      <p class="m-0">
+        We’re building Vent to make everyday crypto use simpler, safer, and faster, with the security and responsible
+        practices that support it.
       </p>
     </div>
 
-    <div
-      class="mt-12 flex flex-wrap items-center gap-x-6 gap-y-4 border-t border-white/12 pt-6 text-sm leading-[1.4] text-night-text"
-    >
-      <span class="min-w-[200px] flex-1">© {year} Vent Africa. All rights reserved.</span>
-      {
-        LEGAL_LINKS.map((l) => (
-          <a href="#" class="text-white! no-underline transition-colors duration-150 hover:text-brand-500!">
-            {l}
-          </a>
-        ))
-      }
+    <div class="mt-16 flex w-full flex-col gap-5 text-xs md:flex-row md:items-center md:justify-between md:text-sm">
+      <p class="m-0 text-[#C9CBCF]">&copy; {year} Vent Africa. All rights reserved.</p>
+      <ul class="m-0 flex list-none flex-wrap items-center gap-4 p-0">
+        {
+          LEGAL_LINKS.map((l) => (
+            <li>
+              <a
+                href={l.href}
+                target="_blank"
+                rel="noopener"
+                class="text-[#C9CBCF]! no-underline hover:text-white!"
+              >
+                {l.title}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
     </div>
+  </div>
+
+  <div class="relative mx-auto w-full">
+    <div class="absolute top-0 left-0 z-2 h-full w-full bg-linear-to-tl from-[#001119] to-[#0011191f]"></div>
+    <img src="/img/footer_text.svg" class="block w-full" alt="" aria-hidden="true" />
   </div>
 </footer>
