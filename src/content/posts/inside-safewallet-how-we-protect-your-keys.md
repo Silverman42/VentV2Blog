@@ -6,6 +6,8 @@ category: security
 author: ao
 publishedAt: 2026-10-29
 readTime: 9
+coverImage: "/img/vent-blog-images/vent-blog-wallet-key-security-thumbnail.webp"
+coverAlt: "An ivory vault with a cyan glass door protecting a silver key on a navy cushion."
 ---
 
 For millions of people in Nigeria and Ghana, crypto isn't a speculative hobby — it's how they get paid by overseas clients, protect savings from currency swings and send money home. But the gap between owning crypto and actually using it day to day is still wider than it should be.

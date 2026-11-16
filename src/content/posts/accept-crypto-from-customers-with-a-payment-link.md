@@ -6,6 +6,8 @@ category: product
 author: ao
 publishedAt: 2026-09-30
 readTime: 4
+coverImage: "/img/vent-blog-images/vent-blog-crypto-payment-link-thumbnail.webp"
+coverAlt: "Cyan glass links connecting a silver token to an ivory smartphone."
 ---
 
 For millions of people in Nigeria and Ghana, crypto isn't a speculative hobby — it's how they get paid by overseas clients, protect savings from currency swings and send money home. But the gap between owning crypto and actually using it day to day is still wider than it should be.

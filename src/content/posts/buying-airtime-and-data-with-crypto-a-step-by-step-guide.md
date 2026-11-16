@@ -6,6 +6,8 @@ category: guides
 author: ta
 publishedAt: 2026-10-04
 readTime: 3
+coverImage: "/img/vent-blog-images/vent-blog-airtime-and-data-thumbnail.webp"
+coverAlt: "An ivory smartphone surrounded by cyan signal arcs and two silver tokens."
 ---
 
 For millions of people in Nigeria and Ghana, crypto isn't a speculative hobby — it's how they get paid by overseas clients, protect savings from currency swings and send money home. But the gap between owning crypto and actually using it day to day is still wider than it should be.

@@ -18,7 +18,7 @@ interface Props {
 const { posts, isVisible = () => true, latestIds = [], class: className, ...rest } = Astro.props;
 ---
 
-<ul class:list={['m-0 grid list-none grid-cols-1 gap-4 p-0 md:grid-cols-2 md:gap-6 lg:gap-8', className]} {...rest}>
+<ul class:list={['m-0 grid list-none grid-cols-1 gap-4 p-0 md:grid-cols-2 md:gap-6 lg:gap-8', className]} data-reveal {...rest}>
   {
     posts.map((post, i) => (
       <li
@@ -33,3 +33,7 @@ const { posts, isVisible = () => true, latestIds = [], class: className, ...rest
     ))
   }
 </ul>
+
+<script>
+  import '../../scripts/reveal';
+</script>

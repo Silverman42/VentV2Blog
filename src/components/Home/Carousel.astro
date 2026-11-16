@@ -33,15 +33,24 @@ const ctrl =
           aria-label={`${i + 1} of ${total}`}
           aria-hidden={i === 0 ? 'false' : 'true'}
           inert={i !== 0}
-          class:list={[
-            'absolute inset-0 transition-opacity duration-[400ms] ease-out',
-            i === 0 ? 'opacity-100' : 'pointer-events-none opacity-0',
-          ]}
+          class:list={['absolute inset-0', i !== 0 && 'pointer-events-none']}
         >
-          <CoverImage src={post.coverImage} alt={post.coverAlt} cat={post.cat} tone="dark" eager={i === 0} />
-          <a href={post.url} tabindex="-1" aria-hidden="true" class="absolute inset-0" />
-          <div class="pointer-events-none absolute inset-x-0 bottom-0 h-[65%] bg-linear-to-t from-abyss/60 to-abyss/0" />
-          <div class="glass-dark absolute bottom-3 left-3 flex w-[calc(100%-24px)] flex-col gap-3.5 rounded-3xl p-5 md:bottom-6 md:left-6 md:w-[calc(100%-48px)] md:p-7 lg:w-[60%]">
+          <div
+            data-slide-media
+            class="absolute inset-0 will-change-transform"
+            style={`transform: translateX(${i === 0 ? 0 : 100}%)`}
+          >
+            <CoverImage src={post.coverImage} alt={post.coverAlt} cat={post.cat} tone="dark" eager={i === 0} />
+            <a href={post.url} tabindex="-1" aria-hidden="true" class="absolute inset-0" />
+            <div class="pointer-events-none absolute inset-x-0 bottom-0 h-[65%] bg-linear-to-t from-abyss/60 to-abyss/0" />
+          </div>
+          <div
+            data-slide-text
+            class:list={[
+              'glass-dark absolute bottom-3 left-3 flex w-[calc(100%-24px)] flex-col gap-3.5 rounded-3xl p-5 transition-opacity ease-out md:bottom-6 md:left-6 md:w-[calc(100%-48px)] md:p-7 lg:w-[60%]',
+              i === 0 ? 'opacity-100' : 'opacity-0',
+            ]}
+          >
             <div class="flex items-center gap-3">
               <a
                 href={`/category/${post.cat}`}

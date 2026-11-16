@@ -39,7 +39,12 @@ const Heading = headingLevel;
     </Heading>
     <p class="m-0 line-clamp-2 text-[15px] leading-[1.55] text-ink-600">{post.excerpt}</p>
   </div>
-  <div class="relative aspect-video border-t border-line-200 bg-surface-alt">
-    <CoverImage src={post.coverImage} alt={post.coverAlt} cat={post.cat} />
+  <div class="relative aspect-video overflow-hidden border-t border-line-200 bg-surface-alt">
+    <CoverImage
+      src={post.coverImage}
+      alt={post.coverAlt}
+      cat={post.cat}
+      class="transition-transform duration-500 ease-out-expo group-hover:scale-105 group-has-[a[data-card-link]:focus-visible]:scale-105"
+    />
   </div>
 </article>

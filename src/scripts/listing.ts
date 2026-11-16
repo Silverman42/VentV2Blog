@@ -1,6 +1,8 @@
 /**
  * Post listings: in-place category filtering (home) and "Load more" pagination (home + category).
  */
+import { resetReveal } from './reveal';
+
 document.querySelectorAll<HTMLElement>('[data-listing]').forEach((root) => {
   const pageSize = Number(root.dataset.pageSize) || 6;
   const isHome = root.dataset.mode === 'home';
@@ -21,7 +23,11 @@ document.querySelectorAll<HTMLElement>('[data-listing]').forEach((root) => {
   const render = () => {
     const visible = new Set(pool().slice(0, shown));
     const total = pool().length;
-    items.forEach((el) => (el.hidden = !visible.has(el)));
+    items.forEach((el) => {
+      const show = visible.has(el);
+      if (!show && !el.hidden) resetReveal(el);
+      el.hidden = !show;
+    });
     if (loadWrap) loadWrap.hidden = total <= shown;
     if (empty) empty.hidden = total > 0;
   };
@@ -44,5 +50,3 @@ document.querySelectorAll<HTMLElement>('[data-listing]').forEach((root) => {
 
   render();
 });
-
-export {};

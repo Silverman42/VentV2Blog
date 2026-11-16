@@ -6,6 +6,8 @@ category: markets
 author: km
 publishedAt: 2026-10-08
 readTime: 8
+coverImage: "/img/vent-blog-images/vent-blog-stablecoin-stability-thumbnail.webp"
+coverAlt: "A navy balance scale comparing ivory banknotes with a silver token inside a cyan sphere."
 ---
 
 For millions of people in Nigeria and Ghana, crypto isn't a speculative hobby — it's how they get paid by overseas clients, protect savings from currency swings and send money home. But the gap between owning crypto and actually using it day to day is still wider than it should be.

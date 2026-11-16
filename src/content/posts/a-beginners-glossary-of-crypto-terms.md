@@ -6,6 +6,8 @@ category: guides
 author: ao
 publishedAt: 2026-10-19
 readTime: 10
+coverImage: "/img/vent-blog-images/vent-blog-crypto-glossary-thumbnail.webp"
+coverAlt: "An open ivory book surrounded by a silver token, a glass cube and a short chain."
 ---
 
 For millions of people in Nigeria and Ghana, crypto isn't a speculative hobby — it's how they get paid by overseas clients, protect savings from currency swings and send money home. But the gap between owning crypto and actually using it day to day is still wider than it should be.

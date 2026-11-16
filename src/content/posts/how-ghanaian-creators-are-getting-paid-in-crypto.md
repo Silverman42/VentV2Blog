@@ -6,6 +6,8 @@ category: lifestyle
 author: ea
 publishedAt: 2026-10-15
 readTime: 7
+coverImage: "/img/vent-blog-images/vent-blog-ghanaian-creator-payments-thumbnail.webp"
+coverAlt: "A navy camera, ivory headphones, cyan tablet and silver tokens on a creative desk."
 ---
 
 For millions of people in Nigeria and Ghana, crypto isn't a speculative hobby — it's how they get paid by overseas clients, protect savings from currency swings and send money home. But the gap between owning crypto and actually using it day to day is still wider than it should be.

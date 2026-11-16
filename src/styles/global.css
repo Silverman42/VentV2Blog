@@ -159,10 +159,32 @@
   }
 }
 
+/* Post grids: cards start lowered and transparent; scripts/reveal.ts sets data-revealed as they scroll in. */
+@media (scripting: enabled) and (prefers-reduced-motion: no-preference) {
+  [data-reveal] > [data-item] {
+    opacity: 0;
+    transform: translateY(24px);
+    transition:
+      opacity 600ms var(--ease-out-expo),
+      transform 600ms var(--ease-out-expo);
+  }
+  [data-reveal] > [data-item][data-revealed] {
+    opacity: 1;
+    transform: none;
+  }
+}
+
 /* Article body typography (rendered markdown) */
 @layer components {
   .prose-vent > * + * {
     margin-top: 1.25rem;
+  }
+  /* Block currently being read aloud by the listen player */
+  .prose-vent [data-tts-active] {
+    background: var(--color-brand-100);
+    box-shadow: 0 0 0 6px var(--color-brand-100);
+    border-radius: 4px;
+    transition: background-color 200ms, box-shadow 200ms;
   }
   .prose-vent h2 {
     @apply font-display text-[26px] leading-[1.2] font-normal md:text-[30px] lg:text-[36px];

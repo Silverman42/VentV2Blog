@@ -6,6 +6,8 @@ category: guides
 author: ta
 publishedAt: 2026-11-01
 readTime: 6
+coverImage: "/img/vent-blog-images/vent-blog-cross-border-payments-thumbnail.webp"
+coverAlt: "Two miniature workstations connected by a cyan glass bridge carrying a silver token."
 ---
 
 For millions of people in Nigeria and Ghana, crypto isn't a speculative hobby — it's how they get paid by overseas clients, protect savings from currency swings and send money home. But the gap between owning crypto and actually using it day to day is still wider than it should be.

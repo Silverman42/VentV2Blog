@@ -1,8 +1,13 @@
 /**
- * Hero carousel (PRD FR-1): cross-fade slides, dots, counter, prev/next, arrow keys, swipe,
- * 6s autoplay that pauses on hover/focus/touch and never runs under prefers-reduced-motion.
+ * Hero carousel (PRD FR-1): images slide horizontally while the text panel fades; dots, counter,
+ * prev/next, arrow keys, swipe, 6s autoplay that pauses on hover/focus/touch and never runs under
+ * prefers-reduced-motion (where global CSS also makes the transitions instant).
  */
 const AUTOPLAY_MS = 6000;
+const SLIDE_MS = 700;
+const TEXT_OUT_MS = 250;
+const TEXT_IN_MS = 450;
+const TEXT_IN_DELAY_MS = 200;
 const reduced = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
 const pad = (n: number) => String(n).padStart(2, '0');
 
@@ -16,16 +21,52 @@ document.querySelectorAll<HTMLElement>('[data-carousel]').forEach((root) => {
   const total = slides.length;
   if (!total) return;
 
+  const media = slides.map((s) => s.querySelector<HTMLElement>('[data-slide-media]'));
+  const text = slides.map((s) => s.querySelector<HTMLElement>('[data-slide-text]'));
+
   let current = 0;
+  let previous = 0;
+  let direction = 1;
   let playing = !reduced;
   let hovering = false;
   let touchX = 0;
 
+  const SLIDE = `transform ${SLIDE_MS}ms var(--ease-out-expo)`;
+
+  /** Images slide in from the side we're heading towards; the text panel fades out, then the new one fades in. */
+  const animate = () => {
+    slides.forEach((_, i) => {
+      const m = media[i];
+      const t = text[i];
+      if (m) {
+        if (i === current && i !== previous) {
+          m.style.transition = 'none';
+          m.style.transform = `translateX(${direction * 100}%)`;
+          void m.offsetWidth; // commit the start position before animating
+          m.style.transition = SLIDE;
+          m.style.transform = 'translateX(0)';
+        } else if (i === previous && i !== current) {
+          m.style.transition = SLIDE;
+          m.style.transform = `translateX(${-direction * 100}%)`;
+        } else if (i !== current) {
+          m.style.transition = 'none';
+          m.style.transform = 'translateX(100%)';
+        }
+      }
+      if (t) {
+        const on = i === current;
+        t.style.transitionDuration = on ? `${TEXT_IN_MS}ms` : `${TEXT_OUT_MS}ms`;
+        t.style.transitionDelay = on ? `${TEXT_IN_DELAY_MS}ms` : '0ms';
+        t.classList.toggle('opacity-100', on);
+        t.classList.toggle('opacity-0', !on);
+      }
+    });
+  };
+
   const render = () => {
+    animate();
     slides.forEach((s, i) => {
       const on = i === current;
-      s.classList.toggle('opacity-100', on);
-      s.classList.toggle('opacity-0', !on);
       s.classList.toggle('pointer-events-none', !on);
       s.setAttribute('aria-hidden', String(!on));
       s.inert = !on;
@@ -49,17 +90,23 @@ document.querySelectorAll<HTMLElement>('[data-carousel]').forEach((root) => {
     }
   };
 
-  const go = (i: number) => {
-    current = (i + total) % total;
+  /** dir: +1 = forward (slides in from the right), -1 = back. Defaults to the sign of the jump. */
+  const go = (i: number, dir = Math.sign(i - current) || 1) => {
+    const next = (i + total) % total;
+    if (next === current) return;
+    previous = current;
+    current = next;
+    direction = dir;
     render();
   };
+  const step = (dir: 1 | -1) => go(current + dir, dir);
 
   window.setInterval(() => {
-    if (playing && !hovering && !reduced && !document.hidden) go(current + 1);
+    if (playing && !hovering && !reduced && !document.hidden) step(1);
   }, AUTOPLAY_MS);
 
-  root.querySelector('[data-prev]')?.addEventListener('click', () => go(current - 1));
-  root.querySelector('[data-next]')?.addEventListener('click', () => go(current + 1));
+  root.querySelector('[data-prev]')?.addEventListener('click', () => step(-1));
+  root.querySelector('[data-next]')?.addEventListener('click', () => step(1));
   dots.forEach((d, i) => d.addEventListener('click', () => go(i)));
   play?.addEventListener('click', () => {
     playing = !playing;
@@ -67,8 +114,8 @@ document.querySelectorAll<HTMLElement>('[data-carousel]').forEach((root) => {
   });
 
   root.addEventListener('keydown', (e) => {
-    if (e.key === 'ArrowLeft') go(current - 1);
-    if (e.key === 'ArrowRight') go(current + 1);
+    if (e.key === 'ArrowLeft') step(-1);
+    if (e.key === 'ArrowRight') step(1);
   });
   root.addEventListener('mouseenter', () => (hovering = true));
   root.addEventListener('mouseleave', () => (hovering = false));
@@ -86,7 +133,7 @@ document.querySelectorAll<HTMLElement>('[data-carousel]').forEach((root) => {
   );
   root.addEventListener('touchend', (e) => {
     const dx = e.changedTouches[0].clientX - touchX;
-    if (Math.abs(dx) > 40) go(current + (dx < 0 ? 1 : -1));
+    if (Math.abs(dx) > 40) step(dx < 0 ? 1 : -1);
     hovering = false;
   });
 

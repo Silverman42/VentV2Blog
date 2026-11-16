@@ -6,6 +6,8 @@ category: lifestyle
 author: km
 publishedAt: 2026-11-04
 readTime: 4
+coverImage: "/img/vent-blog-images/vent-blog-accra-esim-travel-thumbnail.webp"
+coverAlt: "An ivory suitcase, cyan airplane and glass chip beside a miniature palm and modern buildings."
 ---
 
 For millions of people in Nigeria and Ghana, crypto isn't a speculative hobby — it's how they get paid by overseas clients, protect savings from currency swings and send money home. But the gap between owning crypto and actually using it day to day is still wider than it should be.

@@ -6,6 +6,8 @@ category: product
 author: km
 publishedAt: 2026-10-22
 readTime: 3
+coverImage: "/img/vent-blog-images/vent-blog-merchant-payments-thumbnail.webp"
+coverAlt: "Three ivory storefronts with cyan awnings connected by a translucent glass pathway."
 ---
 
 For millions of people in Nigeria and Ghana, crypto isn't a speculative hobby — it's how they get paid by overseas clients, protect savings from currency swings and send money home. But the gap between owning crypto and actually using it day to day is still wider than it should be.

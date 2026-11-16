@@ -6,6 +6,8 @@ category: markets
 author: ea
 publishedAt: 2026-10-26
 readTime: 5
+coverImage: "/img/vent-blog-images/vent-blog-low-fee-transfers-thumbnail.webp"
+coverAlt: "A silver coin gliding along a cyan glass ribbon between two ivory platforms."
 ---
 
 For millions of people in Nigeria and Ghana, crypto isn't a speculative hobby — it's how they get paid by overseas clients, protect savings from currency swings and send money home. But the gap between owning crypto and actually using it day to day is still wider than it should be.

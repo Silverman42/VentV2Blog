@@ -6,6 +6,8 @@ category: security
 author: ta
 publishedAt: 2026-11-09
 readTime: 7
+coverImage: "/img/vent-blog-images/vent-blog-crypto-scam-protection-thumbnail.webp"
+coverAlt: "A cyan glass shield protecting a stack of silver tokens from five dark hooks."
 ---
 
 For millions of people in Nigeria and Ghana, crypto isn't a speculative hobby — it's how they get paid by overseas clients, protect savings from currency swings and send money home. But the gap between owning crypto and actually using it day to day is still wider than it should be.

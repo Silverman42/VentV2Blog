@@ -6,6 +6,8 @@ category: product
 author: km
 publishedAt: 2026-11-11
 readTime: 5
+coverImage: "/img/vent-blog-images/vent-blog-digital-dollar-savings-thumbnail.webp"
+coverAlt: "Silver tokens inside a navy savings vessel protected by a cyan glass dome."
 ---
 
 For millions of people in Nigeria and Ghana, crypto isn't a speculative hobby — it's how they get paid by overseas clients, protect savings from currency swings and send money home. But the gap between owning crypto and actually using it day to day is still wider than it should be.

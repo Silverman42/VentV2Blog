@@ -6,6 +6,8 @@ category: markets
 author: ea
 publishedAt: 2026-11-06
 readTime: 8
+coverImage: "/img/vent-blog-images/vent-blog-crypto-halving-thumbnail.webp"
+coverAlt: "A silver coin on a split navy pedestal with ascending cyan glass columns behind it."
 ---
 
 For millions of people in Nigeria and Ghana, crypto isn't a speculative hobby — it's how they get paid by overseas clients, protect savings from currency swings and send money home. But the gap between owning crypto and actually using it day to day is still wider than it should be.

@@ -1,6 +1,7 @@
 ---
 import type { PostSummary } from '../../lib/posts';
 import ShareButtons from './ShareButtons.astro';
+import ListenPlayer from './ListenPlayer.astro';
 
 interface Props {
   post: PostSummary;
@@ -10,6 +11,7 @@ const { post } = Astro.props;
 ---
 
 <div class="max-w-[70ch] text-base leading-[1.6] text-ink-900 md:text-lg">
+  <ListenPlayer post={post} />
   <div class="prose-vent">
     <slot />
   </div>

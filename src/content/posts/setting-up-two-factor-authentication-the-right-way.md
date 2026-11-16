@@ -6,6 +6,8 @@ category: security
 author: ta
 publishedAt: 2026-10-12
 readTime: 5
+coverImage: "/img/vent-blog-images/vent-blog-two-factor-authentication-thumbnail.webp"
+coverAlt: "An ivory smartphone and navy padlock surrounded by two cyan protective arcs."
 ---
 
 For millions of people in Nigeria and Ghana, crypto isn't a speculative hobby — it's how they get paid by overseas clients, protect savings from currency swings and send money home. But the gap between owning crypto and actually using it day to day is still wider than it should be.
