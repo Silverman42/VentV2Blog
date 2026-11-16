@@ -1,4 +1,8 @@
+/** Matches the toast's CSS transition; also the fallback when transitionend doesn't fire (reduced motion). */
+const SLIDE_MS = 350;
+
 let timer: number | undefined;
+let hideTimer: number | undefined;
 let undoFn: (() => void) | null = null;
 let wired = false;
 
@@ -13,11 +17,17 @@ function els() {
   };
 }
 
+/** Slides the toast back down, then takes it out of the layout/accessibility tree. */
 export function hideToast() {
   const e = els();
-  if (e) e.root.hidden = true;
   undoFn = null;
   window.clearTimeout(timer);
+  if (!e || e.root.hidden || e.root.dataset.open !== 'true') return;
+  e.root.dataset.open = 'false';
+  window.clearTimeout(hideTimer);
+  hideTimer = window.setTimeout(() => {
+    if (e.root.dataset.open !== 'true') e.root.hidden = true;
+  }, SLIDE_MS);
 }
 
 export function showToast(message: string, undo: (() => void) | null = null) {
@@ -36,6 +46,13 @@ export function showToast(message: string, undo: (() => void) | null = null) {
   e.msg.textContent = message;
   e.undo.hidden = !undo;
   e.spacer.hidden = !!undo;
-  e.root.hidden = false;
+  window.clearTimeout(hideTimer);
+  if (e.root.hidden) {
+    // Start from the off-screen position, commit it, then slide up.
+    e.root.dataset.open = 'false';
+    e.root.hidden = false;
+    void e.root.offsetHeight;
+  }
+  e.root.dataset.open = 'true';
   timer = window.setTimeout(hideToast, 4000);
 }

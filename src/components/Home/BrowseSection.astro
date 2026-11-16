@@ -8,6 +8,7 @@ import type { PostSummary } from '../../lib/posts';
 import CategoryTabs from '../Shared/CategoryTabs.astro';
 import LoadMore from '../Shared/LoadMore.astro';
 import PostGrid from '../Shared/PostGrid.astro';
+import EmptyPostsImage from '../Shared/EmptyPostsImage.astro';
 
 interface Props {
   posts: PostSummary[];
@@ -31,9 +32,10 @@ const visibleIds = new Set(pool.slice(0, PAGE_SIZE).map((p) => p.id));
   </h2>
   <CategoryTabs mode="filter" current="all" />
   <PostGrid posts={posts} latestIds={latestIds} isVisible={(p) => visibleIds.has(p.id)} />
-  <p data-list-empty hidden class="m-0 py-12 text-center text-[17px] leading-[1.6] text-ink-600">
-    No posts in this category yet.
-  </p>
+  <div data-list-empty hidden class="flex flex-col items-center gap-3.5 py-12 text-center">
+    <EmptyPostsImage />
+    <p class="m-0 text-[17px] leading-[1.6] text-ink-600">No posts in this category yet.</p>
+  </div>
   <LoadMore hidden={pool.length <= PAGE_SIZE} />
 </section>
 

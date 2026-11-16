@@ -1,14 +1,12 @@
 ---
-import Icon from '../Shared/Icon.astro';
+import EmptyPostsImage from '../Shared/EmptyPostsImage.astro';
 ---
 
 <div
   data-saved-empty
   class="flex flex-col items-center gap-3.5 rounded-3xl border border-line-200 bg-surface-alt px-6 py-16 text-center"
 >
-  <div class="grid size-16 place-items-center rounded-full bg-brand-100 text-brand-700">
-    <Icon name="bookmark" size={28} />
-  </div>
+  <EmptyPostsImage />
   <h2 class="m-0 font-display text-[28px] leading-[1.2] font-normal">Nothing saved yet</h2>
   <p class="m-0 max-w-[380px] text-base leading-[1.6] text-ink-600">Tap the bookmark on any story to keep it here for later.</p>
   <a
