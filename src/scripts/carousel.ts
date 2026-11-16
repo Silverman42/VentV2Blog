@@ -1,5 +1,8 @@
+import { exitStyle, stackStyle, type StackStyle } from '../lib/carouselStack';
+
 /**
- * Hero carousel (PRD FR-1): images slide horizontally while the text panel fades; dots, counter,
+ * Hero carousel (PRD FR-1): a stacked deck of cards — the active card leaves to the left while the
+ * next zooms into focus, and the text panel fades; dots, counter,
  * prev/next, arrow keys, swipe, 6s autoplay that pauses on hover/focus/touch and never runs under
  * prefers-reduced-motion (where global CSS also makes the transitions instant).
  */
@@ -21,7 +24,6 @@ document.querySelectorAll<HTMLElement>('[data-carousel]').forEach((root) => {
   const total = slides.length;
   if (!total) return;
 
-  const media = slides.map((s) => s.querySelector<HTMLElement>('[data-slide-media]'));
   const text = slides.map((s) => s.querySelector<HTMLElement>('[data-slide-text]'));
 
   let current = 0;
@@ -31,27 +33,52 @@ document.querySelectorAll<HTMLElement>('[data-carousel]').forEach((root) => {
   let hovering = false;
   let touchX = 0;
 
-  const SLIDE = `transform ${SLIDE_MS}ms var(--ease-out-expo)`;
+  const MOVE = `transform ${SLIDE_MS}ms var(--ease-out-expo), opacity ${SLIDE_MS}ms var(--ease-out-expo)`;
+  const depthOf = (i: number) => (i - current + total) % total;
+  /** Cards currently parked off to the left after leaving the top of the stack. */
+  const exited = new Set<number>();
+  const timers: number[] = [];
 
-  /** Images slide in from the side we're heading towards; the text panel fades out, then the new one fades in. */
+  const apply = (el: HTMLElement, s: StackStyle, transition: string) => {
+    el.style.transition = transition;
+    el.style.transform = s.transform;
+    el.style.opacity = String(s.opacity);
+    el.style.zIndex = String(s.zIndex);
+  };
+
+  /** Move a parked card to its place in the stack without it sweeping back across, then fade it in. */
+  const restack = (i: number) => {
+    const el = slides[i];
+    const s = stackStyle(depthOf(i), total);
+    apply(el, { ...s, opacity: 0 }, 'none');
+    void el.offsetWidth; // commit the start position before animating
+    apply(el, s, MOVE);
+    exited.delete(i);
+  };
+
+  /**
+   * Forward: the top card slides off left while fading, the next card zooms forward into focus and
+   * the rest step up a level. Backward: mirrored — the target card slides in from the left on top.
+   * The text panel fades out, then the new one fades in.
+   */
   const animate = () => {
-    slides.forEach((_, i) => {
-      const m = media[i];
+    timers.splice(0).forEach((id) => window.clearTimeout(id));
+    slides.forEach((el, i) => {
       const t = text[i];
-      if (m) {
-        if (i === current && i !== previous) {
-          m.style.transition = 'none';
-          m.style.transform = `translateX(${direction * 100}%)`;
-          void m.offsetWidth; // commit the start position before animating
-          m.style.transition = SLIDE;
-          m.style.transform = 'translateX(0)';
-        } else if (i === previous && i !== current) {
-          m.style.transition = SLIDE;
-          m.style.transform = `translateX(${-direction * 100}%)`;
-        } else if (i !== current) {
-          m.style.transition = 'none';
-          m.style.transform = 'translateX(100%)';
-        }
+      const changed = current !== previous;
+      if (changed && direction > 0 && i === previous) {
+        apply(el, exitStyle(total), MOVE);
+        exited.add(i);
+        timers.push(window.setTimeout(() => restack(i), SLIDE_MS));
+      } else if (changed && direction < 0 && i === current) {
+        apply(el, exitStyle(total), 'none');
+        void el.offsetWidth;
+        apply(el, stackStyle(0, total), MOVE);
+        exited.delete(i);
+      } else if (exited.has(i)) {
+        restack(i);
+      } else {
+        apply(el, stackStyle(depthOf(i), total), MOVE);
       }
       if (t) {
         const on = i === current;
