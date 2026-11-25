@@ -1,18 +1,29 @@
 ---
 /**
  * Category pill row.
- * - mode "filter": buttons that filter the grid in place (Home, like the prototype).
+ * - mode "filter": buttons that reload the grid in place (Home). `data-tab` holds the API category id, or "all".
  * - mode "nav": links to category pages (Category pages).
  */
-import { CATEGORIES } from '../../data/site';
+export interface Tab {
+  /** "all" or a category slug. */
+  slug: string;
+  name: string;
+  /** API category id; omitted for "all". */
+  id?: number;
+  /** Nav mode only: link target. Defaults to /category/<slug>, or / for "all". */
+  href?: string;
+}
 
 interface Props {
   mode: 'filter' | 'nav';
+  tabs: Tab[];
   current?: string;
+  label?: string;
+  class?: string;
 }
 
-const { mode, current = 'all' } = Astro.props;
-const tabs = [{ slug: 'all', name: 'All' }, ...CATEGORIES];
+const { mode, tabs, current = 'all', label = 'Categories', class: className = 'mb-8' } = Astro.props;
+const hrefFor = (t: Tab) => t.href ?? (t.slug === 'all' ? '/' : `/category/${t.slug}`);
 const pill =
   'inline-flex h-10 flex-none items-center rounded-full border px-[18px] text-[15px] leading-none font-semibold whitespace-nowrap no-underline transition-colors duration-150 hover:border-brand-700';
 const on = 'border-brand-500 bg-brand-500 text-white!';
@@ -21,12 +32,12 @@ const off = 'border-line-200 bg-surface text-ink-900!';
 
 {
   mode === 'filter' ? (
-    <div role="tablist" aria-label="Filter by category" data-tabs class="mb-8 flex gap-2 overflow-x-auto pb-1">
+    <div role="tablist" aria-label={label} data-tabs class:list={['flex gap-2 overflow-x-auto pb-1', className]}>
       {tabs.map((t) => (
         <button
           type="button"
           role="tab"
-          data-tab={t.slug}
+          data-tab={t.id ?? 'all'}
           aria-selected={t.slug === current ? 'true' : 'false'}
           class:list={[pill, 'aria-selected:border-brand-500 aria-selected:bg-brand-500 aria-selected:text-white!', off]}
         >
@@ -35,10 +46,10 @@ const off = 'border-line-200 bg-surface text-ink-900!';
       ))}
     </div>
   ) : (
-    <nav aria-label="Categories" class="mb-8 flex gap-2 overflow-x-auto pb-1">
+    <nav aria-label={label} class:list={['flex gap-2 overflow-x-auto pb-1', className]}>
       {tabs.map((t) => (
         <a
-          href={t.slug === 'all' ? '/' : `/category/${t.slug}`}
+          href={hrefFor(t)}
           aria-current={t.slug === current ? 'page' : undefined}
           class:list={[pill, t.slug === current ? on : off]}
         >

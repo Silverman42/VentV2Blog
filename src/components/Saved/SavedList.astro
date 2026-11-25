@@ -1,21 +1,22 @@
 ---
 /**
- * All posts are rendered hidden; scripts/saved.ts reveals the bookmarked ones, most recently saved first.
+ * Saved posts are built in the browser by scripts/saved.ts from the encrypted bookmark store,
+ * using the same card templates as the API listings. Each card links to /posts/{slug}.
  */
-import type { PostSummary } from '../../lib/posts';
-import PostGrid from '../Shared/PostGrid.astro';
+import CardTemplates from '../Shared/CardTemplates.astro';
 import SavedEmpty from './SavedEmpty.astro';
-
-interface Props {
-  posts: PostSummary[];
-}
-
-const { posts } = Astro.props;
 ---
 
 <div data-saved-list>
-  <PostGrid posts={posts} isVisible={() => false} data-saved-grid="" />
+  <ul
+    data-saved-grid
+    data-reveal
+    hidden
+    class="m-0 grid list-none grid-cols-1 gap-4 p-0 md:grid-cols-2 md:gap-6 lg:gap-8"
+  >
+  </ul>
   <SavedEmpty />
+  <CardTemplates />
 </div>
 
 <script>

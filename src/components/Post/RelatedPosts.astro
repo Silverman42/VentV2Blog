@@ -1,9 +1,9 @@
 ---
-import type { PostSummary } from '../../lib/posts';
+import type { CardPost } from '../../lib/blogApi/view';
 import PostGrid from '../Shared/PostGrid.astro';
 
 interface Props {
-  posts: PostSummary[];
+  posts: CardPost[];
   category: string;
 }
 

@@ -26,7 +26,7 @@ const observer =
         { threshold: 0.15, rootMargin: '0px 0px -40px 0px' },
       );
 
-const track = (el: HTMLElement) => (observer ? observer.observe(el) : reveal(el));
+export const track = (el: HTMLElement) => (observer ? observer.observe(el) : reveal(el));
 
 /** Hide a card again so it re-animates the next time it becomes visible. */
 export function resetReveal(el: HTMLElement) {

@@ -1,0 +1,26 @@
+---
+/**
+ * Inert copies of PostCard that scripts/cards.ts clones and fills for posts loaded in the browser,
+ * so client-rendered cards use exactly the same markup as server-rendered ones.
+ * One with a cover image, one with the placeholder for posts without one.
+ */
+import type { CardPost } from '../../lib/blogApi/view';
+import PostCard from './PostCard.astro';
+
+const sample: CardPost = {
+  id: '',
+  slug: '',
+  url: '#',
+  title: '',
+  excerpt: '',
+  cat: '',
+  category: '',
+  iso: '',
+  date: '',
+  coverImage: 'data:,',
+  coverAlt: '',
+};
+---
+
+<template data-card-template="cover"><li data-item><PostCard post={sample} /></li></template>
+<template data-card-template="placeholder"><li data-item><PostCard post={{ ...sample, coverImage: undefined }} /></li></template>

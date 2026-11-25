@@ -1,44 +1,32 @@
 ---
 /**
- * "Browse by category" — every post rendered once; tabs filter in place and "Load more" reveals
- * PAGE_SIZE more (scripts/listing.ts). With "All" selected, carousel posts are excluded (PRD FR-3.4).
+ * "Browse by category": the API feed with top-level category tabs that swap it in place
+ * (scripts/listing.ts). With "All" selected, carousel posts are excluded (PRD FR-3.4).
  */
-import { PAGE_SIZE } from '../../data/site';
-import type { PostSummary } from '../../lib/posts';
+import type { BlogCategory } from '../../lib/blogApi/types';
+import type { CardPost, CategoryRef } from '../../lib/blogApi/view';
 import CategoryTabs from '../Shared/CategoryTabs.astro';
-import LoadMore from '../Shared/LoadMore.astro';
-import PostGrid from '../Shared/PostGrid.astro';
-import EmptyPostsImage from '../Shared/EmptyPostsImage.astro';
+import PostListing from '../Shared/PostListing.astro';
 
 interface Props {
-  posts: PostSummary[];
-  latestIds: string[];
+  posts: CardPost[];
+  nextPage: number | null;
+  perPage: number;
+  categories: BlogCategory[];
+  cats: CategoryRef[];
+  carouselIds: string[];
+  error?: string;
 }
 
-const { posts, latestIds } = Astro.props;
-const pool = posts.filter((p) => !latestIds.includes(p.id));
-const visibleIds = new Set(pool.slice(0, PAGE_SIZE).map((p) => p.id));
+const { posts, nextPage, perPage, categories, cats, carouselIds, error } = Astro.props;
+const tabs = [{ slug: 'all', name: 'All' }, ...categories.map(({ id, slug, name }) => ({ id, slug, name }))];
 ---
 
-<section
-  data-listing
-  data-mode="home"
-  data-page-size={PAGE_SIZE}
-  aria-labelledby="browse-heading"
-  class="mx-auto max-w-[1500px] px-4 pt-[88px] pb-24 md:px-8 lg:px-12"
->
+<section aria-labelledby="browse-heading" class="mx-auto max-w-[1500px] px-4 pt-[88px] pb-24 md:px-8 lg:px-12">
   <h2 id="browse-heading" class="m-0 mb-6 font-display text-[26px] leading-[1.2] font-normal md:text-[30px] lg:text-4xl">
     Browse by category
   </h2>
-  <CategoryTabs mode="filter" current="all" />
-  <PostGrid posts={posts} latestIds={latestIds} isVisible={(p) => visibleIds.has(p.id)} />
-  <div data-list-empty hidden class="flex flex-col items-center gap-3.5 py-12 text-center">
-    <EmptyPostsImage />
-    <p class="m-0 text-[17px] leading-[1.6] text-ink-600">No posts in this category yet.</p>
-  </div>
-  <LoadMore hidden={pool.length <= PAGE_SIZE} />
+  <PostListing mode="home" posts={posts} nextPage={nextPage} perPage={perPage} cats={cats} exclude={carouselIds} error={error}>
+    <CategoryTabs slot="tabs" mode="filter" tabs={tabs} label="Filter by category" />
+  </PostListing>
 </section>
-
-<script>
-  import '../../scripts/listing';
-</script>

@@ -1,9 +1,9 @@
 ---
-import type { PostSummary } from '../../lib/posts';
+import type { PostPage } from '../../lib/blogApi/article';
 import Icon from '../Shared/Icon.astro';
 
 interface Props {
-  post: PostSummary;
+  post: PostPage;
 }
 
 const { post } = Astro.props;
@@ -32,7 +32,7 @@ const { post } = Astro.props;
     <div class="flex items-center gap-2 text-[15px] leading-none font-semibold whitespace-nowrap">
       <Icon name="headphones" size={16} class="hidden text-ink-600 sm:block" />
       <span data-listen-status aria-live="polite" class="truncate">Listen to this article</span>
-      <span class="hidden text-[13px] font-medium text-ink-600 sm:inline group-data-[state=paused]:hidden group-data-[state=playing]:hidden">· {post.readTime}</span>
+      {post.readTime && <span class="hidden text-[13px] font-medium text-ink-600 sm:inline group-data-[state=paused]:hidden group-data-[state=playing]:hidden">· {post.readTime}</span>}
     </div>
     <div
       data-listen-progress

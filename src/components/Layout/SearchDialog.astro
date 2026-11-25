@@ -1,20 +1,15 @@
 ---
-import { CATEGORIES } from '../../data/site';
-import { getAllPosts } from '../../lib/posts';
+import type { BlogCategory } from '../../lib/blogApi/types';
+import { flattenCategories } from '../../lib/blogApi/view';
 import Icon from '../Shared/Icon.astro';
 
-const posts = await getAllPosts();
-const index = posts.map(({ id, url, title, excerpt, author, cat, category, date }) => ({
-  id,
-  url,
-  title,
-  excerpt,
-  author,
-  cat,
-  category,
-  date,
-}));
-const cats = [{ slug: 'all', name: 'All' }, ...CATEGORIES];
+interface Props {
+  /** Category tree from the blog API: top-level ones become filter chips. */
+  categories: BlogCategory[];
+}
+
+const { categories } = Astro.props;
+const chips = [{ id: 'all', name: 'All' }, ...categories.map(({ id, name }) => ({ id: String(id), name }))];
 ---
 
 <div
@@ -53,12 +48,12 @@ const cats = [{ slug: 'all', name: 'All' }, ...CATEGORIES];
       </div>
       <div role="radiogroup" aria-label="Filter by category" class="flex gap-2 overflow-x-auto">
         {
-          cats.map((c) => (
+          chips.map((c) => (
             <button
               type="button"
               role="radio"
-              data-scat={c.slug}
-              aria-checked={c.slug === 'all' ? 'true' : 'false'}
+              data-scat={c.id}
+              aria-checked={c.id === 'all' ? 'true' : 'false'}
               class="h-9 flex-none rounded-full border border-line-200 bg-surface px-4 text-sm leading-none font-semibold whitespace-nowrap text-ink-900 hover:border-brand-700 aria-checked:border-brand-500 aria-checked:bg-brand-500 aria-checked:text-white"
             >
               {c.name}
@@ -71,11 +66,11 @@ const cats = [{ slug: 'all', name: 'All' }, ...CATEGORIES];
       <span data-search-label class="block px-3 pt-2.5 pb-1.5 text-xs leading-none font-bold tracking-[0.08em] text-ink-600"
         >LATEST STORIES</span
       >
-      <ul data-search-results class="m-0 list-none p-0"></ul>
+      <ul data-search-results aria-live="polite" class="m-0 list-none p-0"></ul>
       <p data-search-empty hidden class="m-0 px-3 py-8 text-center text-base leading-[1.6] text-ink-600"></p>
     </div>
   </div>
-  <script type="application/json" data-search-index set:html={JSON.stringify(index)} />
+  <script type="application/json" data-search-cats set:html={JSON.stringify(flattenCategories(categories))} />
 </div>
 
 <script>

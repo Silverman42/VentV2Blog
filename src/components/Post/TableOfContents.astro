@@ -6,7 +6,9 @@ interface Props {
 }
 
 const { headings } = Astro.props;
-const items = headings.filter((h) => h.depth === 2);
+// List the shallowest heading level the article uses (h2 in markdown, often h3 in WordPress posts).
+const top = Math.min(...headings.map((h) => h.depth));
+const items = headings.filter((h) => h.depth === top);
 ---
 
 {

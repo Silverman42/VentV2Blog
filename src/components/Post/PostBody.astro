@@ -1,10 +1,10 @@
 ---
-import type { PostSummary } from '../../lib/posts';
+import type { PostPage } from '../../lib/blogApi/article';
 import ShareButtons from './ShareButtons.astro';
 import ListenPlayer from './ListenPlayer.astro';
 
 interface Props {
-  post: PostSummary;
+  post: PostPage;
 }
 
 const { post } = Astro.props;

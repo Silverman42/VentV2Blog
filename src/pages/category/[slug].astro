@@ -1,27 +1,76 @@
 ---
+import { actions } from 'astro:actions';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import CategoryHeader from '../../components/Category/CategoryHeader.astro';
-import CategoryListing from '../../components/Category/CategoryListing.astro';
+import NotFoundMessage from '../../components/NotFound/NotFoundMessage.astro';
 import CategoryTabs from '../../components/Shared/CategoryTabs.astro';
-import { CATEGORIES, type Category } from '../../data/site';
-import { getPostsByCategory } from '../../lib/posts';
+import PostListing from '../../components/Shared/PostListing.astro';
+import { FEED_PER_PAGE } from '../../data/site';
+import { getCategoryTree } from '../../lib/blogApi/server';
+import type { BlogCategory } from '../../lib/blogApi/types';
+import { flattenCategories, toCard } from '../../lib/blogApi/view';
 
-export function getStaticPaths() {
-  return CATEGORIES.map((category) => ({ params: { slug: category.slug }, props: { category } }));
+// Categories come from WordPress and can change at any time, so this page is rendered per request.
+export const prerender = false;
+
+const { slug } = Astro.params;
+
+let tree: BlogCategory[];
+try {
+  tree = await getCategoryTree();
+} catch {
+  Astro.response.status = 502;
+  tree = [];
 }
+const loadFailed = Astro.response.status === 502;
 
-interface Props {
-  category: Category;
-}
+// Slugs resolve against the whole tree, so subcategories get their own page too.
+const top = tree.find((c) => c.slug === slug || c.subcategories.some((s) => s.slug === slug));
+const current = top?.slug === slug ? top : top?.subcategories.find((s) => s.slug === slug);
+// The prerendered /404 can't be a rewrite target from an on-demand page, so render it here.
+const notFound = !loadFailed && (!top || !current);
+if (notFound) Astro.response.status = 404;
 
-const { category } = Astro.props;
-const posts = await getPostsByCategory(category.slug);
+const cats = flattenCategories(tree);
+const { data, error } = current
+  ? await Astro.callAction(actions.blog.getPosts, { categoryId: current.id, perPage: FEED_PER_PAGE })
+  : { data: undefined, error: undefined };
+const posts = (data?.posts ?? []).map((post) => toCard(post, cats, current?.id));
+
+const name = current?.name ?? 'Category';
+const count = current?.postCount ?? 0;
+const desc = loadFailed ? '' : `${count} ${count === 1 ? 'story' : 'stories'} in ${name}.`;
+const crumbs = [
+  { label: 'Home', href: '/' },
+  ...(top && current && top !== current ? [{ label: top.name, href: `/category/${top.slug}` }] : []),
+  { label: name },
+];
+const tabs = [{ slug: 'all', name: 'All' }, ...tree.map(({ slug, name }) => ({ slug, name }))];
+const subTabs = top?.subcategories.length
+  ? [{ slug: top.slug, name: `All ${top.name}` }, ...top.subcategories.map(({ slug, name }) => ({ slug, name }))]
+  : [];
 ---
 
-<BaseLayout title={category.name} description={category.desc} currentCategory={category.slug}>
+{notFound ? (
+  <BaseLayout title="Page not found" noindex>
+    <NotFoundMessage />
+  </BaseLayout>
+) : (
+<BaseLayout title={name} description={desc || undefined} currentCategory={top?.slug}>
   <section class="mx-auto max-w-[1500px] px-4 pt-12 pb-24 md:px-8 lg:px-12">
-    <CategoryHeader category={category} />
-    <CategoryTabs mode="nav" current={category.slug} />
-    <CategoryListing posts={posts} />
+    <CategoryHeader name={name} desc={desc} crumbs={crumbs} />
+    <CategoryTabs mode="nav" tabs={tabs} current={top?.slug} class={subTabs.length ? 'mb-3' : 'mb-8'} />
+    {subTabs.length > 0 && <CategoryTabs mode="nav" tabs={subTabs} current={current?.slug} label={`${top?.name} topics`} />}
+    <PostListing
+      mode="category"
+      posts={posts}
+      nextPage={data?.nextPage ?? null}
+      perPage={FEED_PER_PAGE}
+      cats={cats}
+      withinId={current?.id}
+      reloadOnRetry={loadFailed}
+      error={loadFailed ? 'Unable to fetch blog categories at this time.' : error?.message}
+    />
   </section>
 </BaseLayout>
+)}

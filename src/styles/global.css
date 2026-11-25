@@ -216,4 +216,62 @@
   .prose-vent a {
     @apply underline underline-offset-2;
   }
+
+  /* WordPress article HTML (blog API): headings often start at h3, plus images, tables and block-plugin markup */
+  .prose-vent :is(h3, h4, h5, h6) {
+    scroll-margin-top: 96px;
+  }
+  .prose-vent h3 {
+    @apply font-display text-[24px] leading-[1.25] font-normal md:text-[28px] lg:text-[32px];
+    margin-top: 3rem;
+    margin-bottom: 1rem;
+  }
+  .prose-vent :is(h4, h5, h6) {
+    @apply text-lg leading-[1.35] font-bold md:text-xl;
+    margin-top: 2rem;
+    margin-bottom: 0.5rem;
+  }
+  .prose-vent :is(h3, h4, h5, h6) + *,
+  .prose-vent :is(h3, h4, h5, h6) strong {
+    margin-top: 0;
+    font-weight: inherit;
+  }
+  .prose-vent img {
+    @apply h-auto max-w-full rounded-2xl;
+  }
+  .prose-vent table {
+    @apply block w-full overflow-x-auto border-collapse text-[15px];
+  }
+  .prose-vent :is(th, td) {
+    @apply border border-line-200 px-3 py-2 text-left align-top;
+  }
+  .prose-vent th {
+    @apply bg-surface-alt font-semibold;
+  }
+  /* Block plugins' in-article table of contents: the sidebar one replaces it on large screens */
+  .prose-vent nav[class*='table-of-contents'] {
+    @apply rounded-2xl border border-line-200 bg-surface-alt p-5 text-base lg:hidden;
+  }
+  .prose-vent nav[class*='table-of-contents'] > p {
+    @apply mb-3 font-bold;
+  }
+  .prose-vent nav[class*='table-of-contents'] a {
+    @apply text-ink-900! no-underline hover:text-brand-700!;
+  }
+  .prose-vent nav[class*='table-of-contents'] ul {
+    @apply gap-1.5;
+  }
+  .prose-vent nav[class*='table-of-contents'] ul ul {
+    @apply mt-1.5;
+  }
+  /* Call-to-action blocks */
+  .prose-vent [class*='call-to-action'] {
+    @apply rounded-2xl border border-line-200 bg-surface-alt p-6 text-center;
+  }
+  .prose-vent [class*='call-to-action'] h3 {
+    margin-top: 0;
+  }
+  .prose-vent .stk-button {
+    @apply mt-4 inline-flex h-[52px] items-center rounded-full bg-brand-500 px-7 text-base leading-none font-semibold text-white! no-underline transition-colors duration-150 hover:bg-brand-600;
+  }
 }

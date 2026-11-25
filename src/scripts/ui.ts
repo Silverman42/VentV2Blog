@@ -13,7 +13,7 @@ import {
 } from './bookmarks';
 import { showToast } from './toast';
 
-function syncButtons() {
+export function syncButtons() {
   document.querySelectorAll<HTMLButtonElement>('[data-bookmark]').forEach((btn) => {
     const { id } = JSON.parse(btn.dataset.bookmark!) as BookmarkInput;
     const saved = isSaved(id);

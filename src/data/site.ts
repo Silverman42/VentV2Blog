@@ -8,29 +8,8 @@ export const SITE = {
 
 export const CAROUSEL_COUNT = 5;
 export const PAGE_SIZE = 6;
-
-export interface Category {
-  slug: string;
-  name: string;
-  desc: string;
-}
-
-export const CATEGORIES: Category[] = [
-  { slug: 'guides', name: 'Guides', desc: 'Step-by-step help for selling, sending and spending crypto with Vent.' },
-  { slug: 'markets', name: 'Markets', desc: 'What price moves, policy changes and new tokens mean for people in Nigeria and Ghana.' },
-  { slug: 'product', name: 'Product', desc: 'New features, launches and changes across the Vent app.' },
-  { slug: 'security', name: 'Security', desc: 'Scams to watch for and habits that keep your money safe.' },
-  { slug: 'lifestyle', name: 'Lifestyle', desc: 'How people across Africa are living, working and travelling with crypto.' },
-];
-
-export const AUTHORS: Record<string, string> = {
-  ao: 'Adaeze Okafor',
-  km: 'Kwame Mensah',
-  ta: 'Tolu Adebayo',
-  ea: 'Efua Asante',
-};
-
-export const getCategory = (slug: string) => CATEGORIES.find((c) => c.slug === slug);
+/** Posts per blog API request. Home takes the carousel from the first page, so keep it above CAROUSEL_COUNT. */
+export const FEED_PER_PAGE = 12;
 
 /** Landing-site paths ("/about") resolve against vent.africa; absolute URLs and "#" pass through. */
 const abs = (href: string) => (href.startsWith('/') ? `${SITE.url}${href}` : href);

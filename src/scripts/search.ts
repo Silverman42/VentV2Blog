@@ -1,14 +1,15 @@
-/** Search dialog: filters an inlined JSON index of posts by text and category. */
-interface Entry {
-  id: string;
-  url: string;
-  title: string;
-  excerpt: string;
-  author: string;
-  cat: string;
-  category: string;
-  date: string;
-}
+/**
+ * Search dialog backed by the blog API.
+ * - Empty (or 1-character) query: latest stories via actions.blog.getPosts, cached per chip.
+ * - Otherwise: actions.blog.searchPosts after a debounce (the API allows 60 searches a minute).
+ * Category chips scope both to a top-level category and its subcategories.
+ */
+import { actions } from 'astro:actions';
+import { toCard, type CardPost, type CategoryRef } from '../lib/blogApi/view';
+
+const DEBOUNCE_MS = 350;
+const RESULT_LIMIT = 8;
+const MIN_QUERY = 2;
 
 const root = document.querySelector<HTMLElement>('[data-search]');
 
@@ -19,23 +20,85 @@ if (root) {
   const results = root.querySelector<HTMLUListElement>('[data-search-results]')!;
   const empty = root.querySelector<HTMLElement>('[data-search-empty]')!;
   const chips = root.querySelectorAll<HTMLButtonElement>('[data-scat]');
-  const index: Entry[] = JSON.parse(root.querySelector('[data-search-index]')!.textContent || '[]');
+  const cats: CategoryRef[] = JSON.parse(root.querySelector('[data-search-cats]')?.textContent || '[]');
+  const latestCache = new Map<string, CardPost[]>();
   let scat = 'all';
   let opener: HTMLElement | null = null;
+  let timer: number | undefined;
+  let seq = 0;
 
   panel.setAttribute('aria-hidden', 'true');
   panel.inert = true;
 
-  const render = () => {
-    const q = input.value.trim().toLowerCase();
-    const hits = index.filter(
-      (p) =>
-        (scat === 'all' || p.cat === scat) &&
-        (!q || `${p.title} ${p.excerpt} ${p.author}`.toLowerCase().includes(q)),
+  const categoryId = () => (scat === 'all' ? undefined : Number(scat));
+  const query = () => input.value.trim().replace(/\s+/g, ' ');
+
+  const showMessage = (text: string) => {
+    results.replaceChildren();
+    empty.hidden = false;
+    empty.textContent = text;
+  };
+
+  const errorText = (err: { code?: string; message?: string }) =>
+    err.code === 'TOO_MANY_REQUESTS'
+      ? 'Too many searches. Please wait a moment and try again.'
+      : err.message || 'Unable to search right now. Please try again.';
+
+  /** Fetches and renders for the current query and chip, ignoring responses that arrive out of order. */
+  const run = async () => {
+    const id = ++seq;
+    const q = query();
+    const cid = categoryId();
+    results.setAttribute('aria-busy', 'true');
+
+    if (q.length < MIN_QUERY) {
+      let cards = latestCache.get(scat);
+      label.textContent = cards ? 'LATEST STORIES' : 'LOADING…';
+      if (!cards) {
+        const { data, error } = await actions.blog.getPosts({ perPage: RESULT_LIMIT, categoryId: cid });
+        if (id !== seq) return;
+        results.removeAttribute('aria-busy');
+        if (error) return showMessage(errorText(error));
+        cards = data.posts.map((p) => toCard(p, cats, cid));
+        latestCache.set(scat, cards);
+        label.textContent = 'LATEST STORIES';
+      }
+      results.removeAttribute('aria-busy');
+      return render(cards, 'No stories in this category yet.');
+    }
+
+    label.textContent = 'SEARCHING…';
+    const { data, error } = await actions.blog.searchPosts({ query: q, perPage: RESULT_LIMIT, categoryId: cid });
+    if (id !== seq) return;
+    results.removeAttribute('aria-busy');
+    if (error) {
+      label.textContent = 'RESULTS';
+      return showMessage(errorText(error));
+    }
+    const total = data.meta.total;
+    label.textContent = `${total} ${total === 1 ? 'RESULT' : 'RESULTS'}`;
+    render(
+      data.posts.map((p) => toCard(p, cats, cid)),
+      `No stories match “${q}”. Try another word or category.`,
     );
-    label.textContent = q ? `${hits.length} ${hits.length === 1 ? 'RESULT' : 'RESULTS'}` : 'LATEST STORIES';
+  };
+
+  const schedule = (delay = DEBOUNCE_MS) => {
+    window.clearTimeout(timer);
+    timer = window.setTimeout(() => {
+      const id = seq + 1;
+      run().catch(() => {
+        // Network failure before the action could answer.
+        if (id !== seq) return;
+        results.removeAttribute('aria-busy');
+        showMessage('Unable to search right now. Please try again.');
+      });
+    }, delay);
+  };
+
+  const render = (hits: CardPost[], emptyText: string) => {
     results.replaceChildren(
-      ...hits.slice(0, 8).map((p) => {
+      ...hits.slice(0, RESULT_LIMIT).map((p) => {
         const li = document.createElement('li');
         const a = document.createElement('a');
         a.href = p.url;
@@ -46,14 +109,14 @@ if (root) {
         t.textContent = p.title;
         const m = document.createElement('span');
         m.className = 'text-sm leading-[1.4] font-medium text-ink-600';
-        m.textContent = `${p.category} · ${p.date} · ${p.author}`;
+        m.textContent = [p.category, p.date, p.author].filter(Boolean).join(' · ');
         a.append(t, m);
         li.append(a);
         return li;
       }),
     );
     empty.hidden = hits.length > 0;
-    if (!hits.length) empty.textContent = `No stories match “${input.value.trim()}”. Try another word or category.`;
+    if (!hits.length) empty.textContent = emptyText;
   };
 
   const setOpen = (open: boolean) => {
@@ -63,7 +126,7 @@ if (root) {
     if (open) {
       opener = document.activeElement as HTMLElement | null;
       window.dispatchEvent(new Event('vent:close-overlays'));
-      render();
+      schedule(0);
       window.setTimeout(() => input.focus(), 60);
     } else {
       opener?.focus();
@@ -82,14 +145,13 @@ if (root) {
       setOpen(root.dataset.open !== 'true');
     }
   });
-  input.addEventListener('input', render);
+  input.addEventListener('input', () => schedule());
   chips.forEach((chip) =>
     chip.addEventListener('click', () => {
       scat = chip.dataset.scat!;
       chips.forEach((c) => c.setAttribute('aria-checked', String(c === chip)));
-      render();
+      schedule(0);
     }),
   );
 }
 
-export {};

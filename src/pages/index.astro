@@ -1,17 +1,33 @@
 ---
+import { actions } from 'astro:actions';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Hero from '../components/Home/Hero.astro';
 import Carousel from '../components/Home/Carousel.astro';
 import BrowseSection from '../components/Home/BrowseSection.astro';
-import { CAROUSEL_COUNT } from '../data/site';
-import { getAllPosts } from '../lib/posts';
+import { CAROUSEL_COUNT, FEED_PER_PAGE } from '../data/site';
+import { getCategoryTreeSafe } from '../lib/blogApi/server';
+import { flattenCategories, toCard } from '../lib/blogApi/view';
 
-const posts = await getAllPosts();
-const latest = posts.slice(0, CAROUSEL_COUNT);
+// Rendered per request from the blog API (which caches for up to an hour itself).
+export const prerender = false;
+
+const categories = await getCategoryTreeSafe();
+const cats = flattenCategories(categories);
+const { data, error } = await Astro.callAction(actions.blog.getPosts, { perPage: FEED_PER_PAGE });
+const cards = (data?.posts ?? []).map((post) => toCard(post, cats));
+const carousel = cards.slice(0, CAROUSEL_COUNT);
 ---
 
 <BaseLayout currentCategory="all">
   <Hero />
-  <Carousel posts={latest} />
-  <BrowseSection posts={posts} latestIds={latest.map((p) => p.id)} />
+  {carousel.length > 0 && <Carousel posts={carousel} />}
+  <BrowseSection
+    posts={cards.slice(CAROUSEL_COUNT)}
+    nextPage={data?.nextPage ?? null}
+    perPage={FEED_PER_PAGE}
+    categories={categories}
+    cats={cats}
+    carouselIds={carousel.map((p) => p.id)}
+    error={error?.message}
+  />
 </BaseLayout>

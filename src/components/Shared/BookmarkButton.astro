@@ -3,11 +3,11 @@
  * Bookmark toggle. State (aria-pressed, label, text) is applied on the client by scripts/ui.ts
  * for every element carrying [data-bookmark].
  */
-import type { PostSummary } from '../../lib/posts';
+import type { CardPost } from '../../lib/blogApi/view';
 import Icon from './Icon.astro';
 
 interface Props {
-  post: PostSummary;
+  post: Pick<CardPost, 'id' | 'slug' | 'title' | 'category' | 'cat' | 'excerpt' | 'coverImage'>;
   variant?: 'card' | 'glass' | 'pill';
   class?: string;
 }
@@ -19,6 +19,8 @@ const payload = JSON.stringify({
   slug: post.slug,
   title: post.title,
   category: post.category,
+  cat: post.cat,
+  excerpt: post.excerpt,
   coverImage: post.coverImage ?? `cover-${post.id}`,
 });
 

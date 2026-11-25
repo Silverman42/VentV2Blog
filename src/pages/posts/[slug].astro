@@ -1,51 +1,117 @@
 ---
-import { render } from 'astro:content';
+import { actions } from 'astro:actions';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import PostHeader from '../../components/Post/PostHeader.astro';
 import PostMeta from '../../components/Post/PostMeta.astro';
 import TableOfContents from '../../components/Post/TableOfContents.astro';
 import PostBody from '../../components/Post/PostBody.astro';
 import RelatedPosts from '../../components/Post/RelatedPosts.astro';
-import { absoluteUrl, getAllEntries, getRelated, toSummary, type PostEntry } from '../../lib/posts';
+import NotFoundMessage from '../../components/NotFound/NotFoundMessage.astro';
+import { toPostPage, type PostPage } from '../../lib/blogApi/article';
+import { getCategoryTreeSafe, getPostBySlug } from '../../lib/blogApi/server';
+import type { BlogPostDetail } from '../../lib/blogApi/types';
+import { flattenCategories, toCard, type CardPost } from '../../lib/blogApi/view';
 
-export async function getStaticPaths() {
-  const entries = await getAllEntries();
-  return entries.map((entry) => ({ params: { slug: entry.id }, props: { entry } }));
+// Posts come from the blog API (GET /api/blog/posts/{slug}), so this page is rendered per request.
+export const prerender = false;
+
+const RELATED_COUNT = 2;
+
+const { slug } = Astro.params;
+
+let detail: BlogPostDetail | null = null;
+let loadFailed = false;
+try {
+  detail = await getPostBySlug(slug);
+} catch {
+  loadFailed = true;
 }
 
-interface Props {
-  entry: PostEntry;
+const cats = flattenCategories(await getCategoryTreeSafe());
+const post: PostPage | null = detail ? toPostPage(detail, cats) : null;
+// The prerendered /404 can't be a rewrite target from an on-demand page, so render it here.
+if (loadFailed) Astro.response.status = 502;
+else if (!post) Astro.response.status = 404;
+
+let related: CardPost[] = [];
+if (post) {
+  const { data } = await Astro.callAction(actions.blog.getPosts, {
+    perPage: RELATED_COUNT + 1,
+    categoryId: post.categoryId,
+  });
+  related = (data?.posts ?? [])
+    .filter((p) => String(p.id) !== post.id)
+    .slice(0, RELATED_COUNT)
+    .map((p) => toCard(p, cats, post.categoryId));
 }
 
-const { entry } = Astro.props;
-const post = toSummary(entry);
-const { Content, headings } = await render(entry);
-const related = await getRelated(post);
+// Highlight the post's top-level category in the drawer.
+const postCat = cats.find((c) => c.id === post?.categoryId);
+const topCategory = (postCat?.parentId ? cats.find((c) => c.id === postCat.parentId) : postCat)?.slug;
 
-const jsonLd = {
+const jsonLd = post && {
   '@context': 'https://schema.org',
   '@type': 'BlogPosting',
   headline: post.title,
-  description: post.excerpt,
-  datePublished: post.iso,
-  author: { '@type': 'Person', name: post.author },
+  description: post.seo.description,
+  datePublished: post.publishedAt,
+  dateModified: post.modifiedAt,
+  ...(post.author ? { author: { '@type': 'Person', name: post.author } } : {}),
+  ...(post.seo.imageUrl ? { image: post.seo.imageUrl } : {}),
+  ...(post.seo.keywords.length ? { keywords: post.seo.keywords.join(', ') } : {}),
   articleSection: post.category,
-  mainEntityOfPage: absoluteUrl(post.url),
+  mainEntityOfPage: post.seo.canonicalUrl,
   publisher: { '@type': 'Organization', name: 'Vent Africa' },
 };
 ---
 
-<BaseLayout title={post.title} description={post.excerpt} ogType="article">
-  <script type="application/ld+json" slot="head" set:html={JSON.stringify(jsonLd)} />
-  <article class="mx-auto max-w-[1500px] px-4 pt-10 md:px-8 lg:px-12">
-    <PostHeader post={post} />
-    <PostMeta post={post} />
-    <div class="grid grid-cols-1 gap-16 pt-12 pb-20 lg:grid-cols-[220px_minmax(0,1fr)]">
-      <TableOfContents headings={headings} />
-      <PostBody post={post}>
-        <Content />
-      </PostBody>
-    </div>
-  </article>
-  <RelatedPosts posts={related} category={post.category} />
-</BaseLayout>
+{
+  loadFailed ? (
+    <BaseLayout title="Story unavailable" noindex>
+      <section role="alert" class="mx-auto flex max-w-[1500px] flex-col items-center gap-4 px-4 pt-24 pb-32 text-center md:px-8 lg:px-12">
+        <h1 class="m-0 max-w-[720px] font-display text-[32px] leading-[1.15] font-normal text-balance md:text-[40px]">
+          We couldn't load this story
+        </h1>
+        <p class="m-0 max-w-[480px] text-[17px] leading-[1.6] text-ink-600">Unable to fetch this blog post at this time.</p>
+        <button
+          type="button"
+          data-reload
+          class="mt-4 h-[52px] cursor-pointer rounded-full border border-brand-700 bg-transparent px-7 text-base leading-none font-semibold text-brand-700 transition-colors duration-150 hover:bg-brand-100"
+        >
+          Retry
+        </button>
+      </section>
+      <script is:inline>
+        document.querySelector('[data-reload]')?.addEventListener('click', () => location.reload());
+      </script>
+    </BaseLayout>
+  ) : !post ? (
+    <BaseLayout title="Page not found" noindex>
+      <NotFoundMessage />
+    </BaseLayout>
+  ) : (
+    <BaseLayout
+      title={post.seo.title || post.title}
+      rawTitle={!!post.seo.title}
+      description={post.seo.description || post.excerpt}
+      canonical={post.seo.canonicalUrl || undefined}
+      image={post.seo.imageUrl ?? post.coverImage}
+      keywords={post.seo.keywords}
+      currentCategory={topCategory}
+      ogType="article"
+    >
+      <script type="application/ld+json" slot="head" set:html={JSON.stringify(jsonLd)} />
+      <article class="mx-auto max-w-[1500px] px-4 pt-10 md:px-8 lg:px-12">
+        <PostHeader post={post} />
+        <PostMeta post={post} />
+        <div class="grid grid-cols-1 gap-16 pt-12 pb-20 lg:grid-cols-[220px_minmax(0,1fr)]">
+          <TableOfContents headings={post.headings} />
+          <PostBody post={post}>
+            <Fragment set:html={post.html} />
+          </PostBody>
+        </div>
+      </article>
+      <RelatedPosts posts={related} category={post.category} />
+    </BaseLayout>
+  )
+}

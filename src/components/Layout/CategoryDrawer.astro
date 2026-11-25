@@ -1,14 +1,17 @@
 ---
-import { CATEGORIES, SITE } from '../../data/site';
+import { SITE } from '../../data/site';
+import type { BlogCategory } from '../../lib/blogApi/types';
 import Icon from '../Shared/Icon.astro';
 
 interface Props {
   /** 'all' for home, category slug for a category page, otherwise undefined. */
   current?: string;
+  /** Top-level categories from the blog API. */
+  categories: BlogCategory[];
 }
 
-const { current } = Astro.props;
-const items = [{ slug: 'all', name: 'All stories' }, ...CATEGORIES];
+const { current, categories } = Astro.props;
+const items = [{ slug: 'all', name: 'All stories' }, ...categories.map(({ slug, name }) => ({ slug, name }))];
 ---
 
 <div data-drawer data-open="false" class="group/drawer">

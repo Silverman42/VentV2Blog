@@ -1,11 +1,26 @@
 // @ts-check
-import { defineConfig } from 'astro/config';
+import { defineConfig, envField } from 'astro/config';
 
+import node from '@astrojs/node';
 import tailwindcss from '@tailwindcss/vite';
 
 // https://astro.build/config
 export default defineConfig({
   site: 'https://vent.africa',
+  // Pages stay prerendered; the adapter only serves on-demand routes such as /_actions/*.
+  adapter: node({ mode: 'standalone' }),
+  env: {
+    schema: {
+      BLOG_API_BASE_URL: envField.string({ context: 'server', access: 'secret', url: true }),
+      BLOG_API_APP_VERSION: envField.string({ context: 'server', access: 'public', default: '1.0.0' }),
+      BLOG_API_DEVICE_OS: envField.enum({
+        context: 'server',
+        access: 'public',
+        values: ['web', 'android', 'ios'],
+        default: 'web',
+      }),
+    },
+  },
   vite: {
     plugins: [tailwindcss()],
     build: {

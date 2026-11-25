@@ -3,13 +3,13 @@
  * Responsive post grid (PRD FR-3): 1 column < 768px, 2 columns from 768px.
  * Items expose data attributes so listing/saved scripts can filter, paginate and reorder them.
  */
-import type { PostSummary } from '../../lib/posts';
+import type { CardPost } from '../../lib/blogApi/view';
 import PostCard from './PostCard.astro';
 
 interface Props {
-  posts: PostSummary[];
+  posts: CardPost[];
   /** Server-side visibility: return false to render an item hidden (JS may reveal it). */
-  isVisible?: (post: PostSummary, index: number) => boolean;
+  isVisible?: (post: CardPost, index: number) => boolean;
   latestIds?: string[];
   class?: string;
   [key: `data-${string}`]: string | undefined;

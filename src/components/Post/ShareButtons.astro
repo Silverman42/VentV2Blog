@@ -1,14 +1,15 @@
 ---
-import { absoluteUrl, type PostSummary } from '../../lib/posts';
+import type { PostPage } from '../../lib/blogApi/article';
 import BookmarkButton from '../Shared/BookmarkButton.astro';
 import Icon from '../Shared/Icon.astro';
 
 interface Props {
-  post: PostSummary;
+  post: PostPage;
 }
 
 const { post } = Astro.props;
-const url = absoluteUrl(post.url);
+// Share the canonical article on blog.vent.africa (per the blog API guide).
+const url = post.link;
 const enc = encodeURIComponent;
 const shares = [
   { label: 'Share on X', glyph: 'X', href: `https://x.com/intent/post?url=${enc(url)}&text=${enc(post.title)}` },

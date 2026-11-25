@@ -1,0 +1,61 @@
+---
+/**
+ * API-backed post listing: the first API page rendered on the server, then scripts/listing.ts
+ * reveals PAGE_SIZE at a time and fetches more pages through actions.blog.getPosts.
+ * Put category filter tabs (CategoryTabs mode="filter") in the "tabs" slot to switch feeds in place.
+ */
+import { PAGE_SIZE } from '../../data/site';
+import type { CardPost, CategoryRef } from '../../lib/blogApi/view';
+import CardTemplates from './CardTemplates.astro';
+import EmptyPostsImage from './EmptyPostsImage.astro';
+import LoadMore from './LoadMore.astro';
+import PostGrid from './PostGrid.astro';
+
+interface Props {
+  /** Cards from the first API page, carousel posts already removed. */
+  posts: CardPost[];
+  /** Page to fetch next with `perPage`, or null when the first page was the last. */
+  nextPage: number | null;
+  perPage: number;
+  cats: CategoryRef[];
+  /** Scope every request to this category (category pages). */
+  withinId?: number;
+  /** Ids to keep out of the "All" feed (carousel posts on home). */
+  exclude?: string[];
+  /** Set when the first fetch failed, to render the error state instead of the empty state. */
+  error?: string;
+  /** Retry reloads the page instead of refetching posts (when the page itself could not load its data). */
+  reloadOnRetry?: boolean;
+  mode: 'home' | 'category';
+}
+
+const { posts, nextPage, perPage, cats, withinId, exclude = [], error, reloadOnRetry = false, mode } = Astro.props;
+const state = { perPage, pageSize: PAGE_SIZE, withinId: withinId ?? null, cats, exclude, nextPage };
+---
+
+<div data-listing data-mode={mode} data-reload-on-retry={reloadOnRetry ? 'true' : undefined}>
+  <slot name="tabs" />
+  <PostGrid posts={posts} isVisible={(_, i) => i < PAGE_SIZE} />
+  <p data-list-loading hidden class="m-0 py-12 text-center text-[17px] leading-[1.6] text-ink-600">Loading stories…</p>
+  <div data-list-empty hidden={!!error || posts.length > 0 || !!nextPage} class="flex flex-col items-center gap-3.5 py-12 text-center">
+    <EmptyPostsImage />
+    <p class="m-0 text-[17px] leading-[1.6] text-ink-600">No posts in this category yet.</p>
+  </div>
+  <div data-list-error role="alert" hidden={!error} class="flex flex-col items-center gap-4 py-12 text-center">
+    <p data-list-error-text class="m-0 text-[17px] leading-[1.6] text-ink-600">{error ?? ''}</p>
+    <button
+      type="button"
+      data-list-retry
+      class="h-[52px] rounded-full border border-brand-700 bg-transparent px-7 text-base leading-none font-semibold text-brand-700 transition-colors duration-150 hover:bg-brand-100"
+    >
+      Retry
+    </button>
+  </div>
+  <LoadMore hidden={posts.length <= PAGE_SIZE && !nextPage} />
+  <CardTemplates />
+  <script type="application/json" data-listing-state set:html={JSON.stringify(state)} />
+</div>
+
+<script>
+  import '../../scripts/listing';
+</script>

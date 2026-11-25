@@ -11,6 +11,10 @@ export interface Bookmark {
   slug: string;
   title: string;
   category: string;
+  /** Category slug; missing on bookmarks saved before it was stored. */
+  cat?: string;
+  excerpt?: string;
+  /** Cover URL, or `cover-{id}` when the post has none. */
   coverImage: string;
   savedAt: string;
 }

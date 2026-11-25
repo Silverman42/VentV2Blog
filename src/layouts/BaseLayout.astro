@@ -6,6 +6,7 @@ import Footer from '../components/Layout/Footer.astro';
 import SearchDialog from '../components/Layout/SearchDialog.astro';
 import CategoryDrawer from '../components/Layout/CategoryDrawer.astro';
 import Toast from '../components/Layout/Toast.astro';
+import { getCategoryTreeSafe } from '../lib/blogApi/server';
 
 interface Props {
   title?: string;
@@ -15,6 +16,13 @@ interface Props {
   savedActive?: boolean;
   ogType?: 'website' | 'article';
   noindex?: boolean;
+  /** Use `title` as the full <title> without the site-name suffix (e.g. SEO titles ending in "| Vent"). */
+  rawTitle?: boolean;
+  /** Absolute canonical URL; defaults to this page on the site. */
+  canonical?: string;
+  /** Social share image (og:image / twitter:image). */
+  image?: string | null;
+  keywords?: string[];
 }
 
 const {
@@ -24,10 +32,17 @@ const {
   savedActive = false,
   ogType = 'website',
   noindex = false,
+  rawTitle = false,
+  canonical: canonicalProp,
+  image,
+  keywords = [],
 } = Astro.props;
 
-const fullTitle = title ? `${title} · ${SITE.name}` : `${SITE.name} — Stories, guides and news on crypto in Africa`;
-const canonical = new URL(Astro.url.pathname, Astro.site ?? SITE.url).toString();
+// Drawer and search chips. Fetched per request on on-demand pages, at build time on prerendered ones.
+const categories = await getCategoryTreeSafe();
+
+const fullTitle = title && rawTitle ? title : title ? `${title} · ${SITE.name}` : `${SITE.name} — Stories, guides and news on crypto in Africa`;
+const canonical = canonicalProp ?? new URL(Astro.url.pathname, Astro.site ?? SITE.url).toString();
 ---
 
 <!doctype html>
@@ -39,6 +54,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? SITE.url).toString()
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
     {noindex && <meta name="robots" content="noindex" />}
+    {keywords.length > 0 && <meta name="keywords" content={keywords.join(', ')} />}
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="theme-color" content="#FFFFFF" />
     <script is:inline>
@@ -57,7 +73,9 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? SITE.url).toString()
     <meta property="og:title" content={fullTitle} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
+    {image && <meta property="og:image" content={image} />}
     <meta name="twitter:card" content="summary_large_image" />
+    {image && <meta name="twitter:image" content={image} />}
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -76,8 +94,8 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? SITE.url).toString()
     >
     <div class="flex min-h-screen flex-col">
       <Header savedActive={savedActive} />
-      <SearchDialog />
-      <CategoryDrawer current={currentCategory} />
+      <SearchDialog categories={categories} />
+      <CategoryDrawer current={currentCategory} categories={categories} />
       <main id="main" class="flex-1">
         <slot />
       </main>

@@ -5,13 +5,13 @@
  * geometry in lib/carouselStack.ts.
  */
 import { stackStyle, toCss } from '../../lib/carouselStack';
-import type { PostSummary } from '../../lib/posts';
+import type { CardPost } from '../../lib/blogApi/view';
 import BookmarkButton from '../Shared/BookmarkButton.astro';
 import CoverImage from '../Shared/CoverImage.astro';
 import Icon from '../Shared/Icon.astro';
 
 interface Props {
-  posts: PostSummary[];
+  posts: CardPost[];
 }
 
 const { posts } = Astro.props;
@@ -66,8 +66,8 @@ const ctrl =
               </a>
               <div class="flex min-w-0 flex-1 gap-2 overflow-hidden text-sm leading-[1.4] font-medium text-ellipsis whitespace-nowrap text-white">
                 <time datetime={post.iso}>{post.date}</time>
-                <span aria-hidden="true">·</span>
-                <span>{post.author}</span>
+                {post.author && <span aria-hidden="true">·</span>}
+                {post.author && <span>{post.author}</span>}
               </div>
               <BookmarkButton post={post} variant="glass" />
             </div>
