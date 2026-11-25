@@ -1,14 +1,14 @@
 // @ts-check
 import { defineConfig, envField } from 'astro/config';
 
-import node from '@astrojs/node';
+import netlify from '@astrojs/netlify';
 import tailwindcss from '@tailwindcss/vite';
 
 // https://astro.build/config
 export default defineConfig({
   site: 'https://vent.africa',
-  // Pages stay prerendered; the adapter only serves on-demand routes such as /_actions/*.
-  adapter: node({ mode: 'standalone' }),
+  // Prerendered pages go to Netlify's CDN; on-demand pages and /_actions/* run as a Netlify Function.
+  adapter: netlify(),
   env: {
     schema: {
       BLOG_API_BASE_URL: envField.string({ context: 'server', access: 'secret', url: true }),
