@@ -3,7 +3,7 @@ export const SITE = {
   url: 'https://vent.africa',
   description:
     'Stories, guides and news on using crypto across Africa — practical help for selling, saving and spending crypto in Nigeria and Ghana.',
-  downloadUrl: 'https://vent.africa',
+  downloadUrl: 'https://vent.africa/app',
 };
 
 export const CAROUSEL_COUNT = 5;
